@@ -6,12 +6,15 @@ package kr.co.surveylink.www.mobilelink;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.IBinder;
 import android.os.SystemClock;
 
+import java.util.Date;
 import java.util.List;
 
 public class MServiceMonitor {
@@ -20,7 +23,6 @@ public class MServiceMonitor {
     private AlarmManager am;
     private Intent intent;
     private PendingIntent sender;
-    private long interval = 60000;
 
     private MServiceMonitor() {}
     public static synchronized MServiceMonitor getInstance() {
@@ -39,15 +41,11 @@ public class MServiceMonitor {
         }
     }
 
-    public void setInterval(long interval) {
-        this.interval = interval;
-    }
-
     public void startMonitoring(Context context) {
         am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         intent = new Intent(context, MonitorBR.class);
         sender = PendingIntent.getBroadcast(context, 0, intent, 0);
-        am.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), interval, sender);
+        am.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), Common.interval_startService, sender);
     }
 
     public void stopMonitoring(Context context) {
@@ -81,5 +79,59 @@ public class MServiceMonitor {
             }
         }
         return isRunning;
+    }
+
+    static public class MService extends Service {
+
+        public static Thread mThread;
+        private boolean serviceRunning = false;
+        private ComponentName recentComponentName;
+        private ActivityManager mActivityManager;
+
+        @Override
+        public void onCreate() {
+            super.onCreate();
+            mActivityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+            serviceRunning = true;
+
+            //앱 설치/제거/업데이트 로그
+            //MAddRemove.getInstance().addReceiver(getApplicationContext());
+        }
+
+        @Override
+        public void onDestroy() {
+            serviceRunning = false;
+            //MAddRemove.getInstance().removeReceiver(getApplicationContext());
+            super.onDestroy();
+        }
+
+        @Override
+        public int onStartCommand(Intent intent, int flags, int startId){
+            if (mThread == null) {
+                mThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while (serviceRunning) {
+                            Long now = (new Date()).getTime();
+                            //MActivity retriveApp
+                            if(Common.lasttime_retriveApp+Common.interval_retriveApp<now){
+                                MActivity.getInstance().retriveApp(getApplicationContext());
+                                Common.lasttime_retriveApp=now;
+                            }
+                            SystemClock.sleep(Common.interval_service);
+                        }
+                    }
+                });
+                mThread.start();
+            } else if (mThread.isAlive() == false) {
+                mThread.start();
+            }
+            return START_STICKY;
+        }
+
+        @Override
+        public IBinder onBind(Intent intent){
+            return null;
+        }
     }
 }

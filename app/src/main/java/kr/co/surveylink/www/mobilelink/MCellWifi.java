@@ -20,8 +20,8 @@ public class MCellWifi {
 
     //handler
     public void action(String action,int state){
-        Common.log(action);
-        Common.log(state);
+        //Common.log(action);
+        //Common.log(state);
         //0 : WIFI_STATE_DISABLING
         //1 : WIFI_STATE_DISABLED
         //2 : WIFI_STATE_ENABLING
