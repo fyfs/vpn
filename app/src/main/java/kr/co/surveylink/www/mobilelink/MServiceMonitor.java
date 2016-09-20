@@ -45,7 +45,7 @@ public class MServiceMonitor {
         am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         intent = new Intent(context, MonitorBR.class);
         sender = PendingIntent.getBroadcast(context, 0, intent, 0);
-        am.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), Common.interval_startService, sender);
+        am.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), Common.getInstance().interval_startService, sender);
     }
 
     public void stopMonitoring(Context context) {
@@ -114,11 +114,11 @@ public class MServiceMonitor {
                         while (serviceRunning) {
                             Long now = (new Date()).getTime();
                             //MActivity retriveApp
-                            if(Common.lasttime_retriveApp+Common.interval_retriveApp<now){
+                            if(Common.getInstance().lasttime_retriveApp+Common.getInstance().interval_retriveApp<now){
                                 MActivity.getInstance().retriveApp(getApplicationContext());
-                                Common.lasttime_retriveApp=now;
+                                Common.getInstance().lasttime_retriveApp=now;
                             }
-                            SystemClock.sleep(Common.interval_service);
+                            SystemClock.sleep(Common.getInstance().interval_service);
                         }
                     }
                 });

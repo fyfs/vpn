@@ -1,7 +1,9 @@
 <resources>
     <string name="app_name">MobileLink</string>
-    <string name="pptp_vpn_description">PPTP</string>
-    <string name="l2tp_vpn_description">l2tp</string>
-    <string name="l2tp_ipsec_psk_vpn_description">l2tp_psk</string>
-    <string name="l2tp_ipsec_crt_vpn_description">l2tp_crt</string>
+    <string name="permission">권한 메뉴에서 모든 권한을 허용해주세요</string>
+    <string name="usageAccess">mobilelink 를 허용해주세요</string>
+
+    <string name="url_MAddRemove">http://192.168.1.21/MAddRemove</string>
+    <string name="url_MInstalledApp">http://192.168.1.21/MInstalledApp</string>
+    <string name="url_MActivity">http://192.168.1.21/MActivity</string>
 </resources>

@@ -12,24 +12,46 @@ import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 /**
  * Created by jsyang on 2016-09-02.
  */
-public class MInstalledApp {
+public class MInstalledApp implements IDataHandler{
 
-    static public List<HashMap<String,String>> getInstalledApp(Context context) {
-        Common.log("MInstalledApp getInstalledApp called");
+    static private MInstalledApp instance;
+    static public synchronized MInstalledApp getInstance(){
+        if(instance==null){
+            instance=new MInstalledApp();
+        }
+        return instance;
+    }
+
+    /**
+     * 여러건을 모아서 한 번에 저장하기 위해 data 에 담아둠
+     */
+    private JSONArray data = new JSONArray();
+
+    /**
+     * 현재 설치되어있는 앱 정보를 확인해 data 변수에 넣음
+     * @param context context
+     */
+    public void checkInstalledApp(Context context) {
+        Common.log("MInstalledApp checkInstalledApp called");
         final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         final List pkgAppsList = context.getPackageManager().queryIntentActivities(mainIntent, 0);
-        List<HashMap<String,String>> list = new ArrayList<>();
+        data = new JSONArray();
         HashMap<String,String> ret;
+        String actionTime = Long.toString(new Date().getTime());
         for (Object obj : pkgAppsList) {
-            ret = new HashMap<String,String>();
+            JSONObject o = new JSONObject();
             ResolveInfo resolveInfo = (ResolveInfo) obj;
             PackageInfo packageInfo = null;
             try {
@@ -37,7 +59,6 @@ public class MInstalledApp {
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
             }
-
             int i;
             String packageName = "";
             String permissions = "";
@@ -47,26 +68,30 @@ public class MInstalledApp {
             int versionCode = 0;
             String versionName = "";
 
-            packageName=Common.isNull(packageInfo.packageName);
+            packageName=Common.getInstance().isNull(packageInfo.packageName);
             if(packageInfo.requestedPermissions !=null){
                 for(i=0;i<packageInfo.requestedPermissions.length;i++){
                     permissions+="|"+packageInfo.requestedPermissions[i];
                 }
                 permissions=permissions.substring(1);
             }
-            applicationLabel=Common.isNull(context.getPackageManager().getApplicationLabel(packageInfo.applicationInfo).toString());
+            applicationLabel=Common.getInstance().isNull(context.getPackageManager().getApplicationLabel(packageInfo.applicationInfo).toString());
             firstInstallTime=packageInfo.firstInstallTime;
             lastUpdateTime=packageInfo.lastUpdateTime;
             versionCode=packageInfo.versionCode;
             versionName=packageInfo.versionName;
-
-            ret.put("packageName",packageName);
-            ret.put("permissions",permissions);
-            ret.put("applicationLabel",applicationLabel);
-            ret.put("firstInstallTime",Long.toString(firstInstallTime));
-            ret.put("lastUpdateTime",Long.toString(lastUpdateTime));
-            ret.put("versionCode",Integer.toString(versionCode));
-            ret.put("versionName",versionName);
+            try {
+                o.put("at", actionTime);
+                o.put("pn", packageName);
+                o.put("pm", permissions);
+                o.put("al", applicationLabel);
+                o.put("ft", Long.toString(firstInstallTime));
+                o.put("lt", Long.toString(lastUpdateTime));
+                o.put("vc", Integer.toString(versionCode));
+                o.put("vn", versionName);
+            } catch (Exception e){
+                e.toString();
+            }
 
             Common.log("----------------------");
             Common.log( "packageName : "+packageName);//com.nhn.android.search
@@ -125,8 +150,46 @@ public class MInstalledApp {
                 }
             }
             */
-            list.add(ret);
+            data.put(o);
         }
-        return list;
+    }
+
+    /**
+     * data 에 저장되어 있는 값들을 전송함
+     * @param context context
+     */
+    public void save(Context context){
+        String currentTime = Long.toString(new Date().getTime());
+        Object[][] params = {{"list",data.toString()},{"currentTime",currentTime}};
+        Common.getInstance().loadData(Common.HttpAsyncTask.CALLTYPE_INSTALLEDAPP_SAVE, context.getString(R.string.url_MInstalledApp), params, this);
+    }
+
+    /**
+     * 전송 후 종류에 따른 분기
+     * @param calltype 전송의 종류
+     * @param str 결과 문자열
+     */
+    public void dataHandler(int calltype, String str){
+        switch(calltype){
+            case Common.HttpAsyncTask.CALLTYPE_INSTALLEDAPP_SAVE:
+                saveHandler(str);
+                break;
+        }
+    }
+
+    /**
+     * 저장된 값의 전송 결과 처리
+     * @param result 결과 문자열
+     */
+    private void saveHandler(String result) {
+        try {
+            JSONObject json = new JSONObject(result);
+            String err = json.getString("ERR");
+            if(err.equals("")){
+                data = new JSONArray();
+            }
+        } catch (Exception e){
+            Common.log(e.toString());
+        }
     }
 }
