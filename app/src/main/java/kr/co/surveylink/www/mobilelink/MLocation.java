@@ -5,7 +5,10 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Bundle;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
@@ -76,10 +79,10 @@ public class MLocation {
         int permissionCheck = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
         if(permissionCheck== PackageManager.PERMISSION_DENIED){
             Common.log("ACCESS_FINE_LOCATION permission denied");
-            ret.put(MLocation.STR_LAT,"-1");
-            ret.put(MLocation.STR_LON,"-1");
-            ret.put(MLocation.STR_ACR,"-1");
-            ret.put(MLocation.STR_ALT,"-1");
+            ret.put(MLocation.STR_LAT,"-2");
+            ret.put(MLocation.STR_LON,"-2");
+            ret.put(MLocation.STR_ACR,"-2");
+            ret.put(MLocation.STR_ALT,"-2");
             return ret;
         }
         LocationManager mLocationManager = (LocationManager)context.getApplicationContext().getSystemService(context.LOCATION_SERVICE);
@@ -87,10 +90,10 @@ public class MLocation {
         Location bestLocation = null;
         if(providers.size()==0) {
             Common.log("위치 서비스가 활성화되어있지 않습니다");
-            ret.put(MLocation.STR_LAT,"-2");
-            ret.put(MLocation.STR_LON,"-2");
-            ret.put(MLocation.STR_ACR,"-2");
-            ret.put(MLocation.STR_ALT,"-2");
+            ret.put(MLocation.STR_LAT,"-3");
+            ret.put(MLocation.STR_LON,"-3");
+            ret.put(MLocation.STR_ACR,"-3");
+            ret.put(MLocation.STR_ALT,"-3");
             return ret;
         }
         try {
@@ -106,17 +109,43 @@ public class MLocation {
                     ret.put(MLocation.STR_ACR,Double.toString(bestLocation.getAccuracy()));//30.0
                     ret.put(MLocation.STR_ALT,Double.toString(bestLocation.getAltitude()));//0
                 }
+
             }
         }
         catch (SecurityException | NullPointerException e){
             //permission 허용안함
-            ret.put(MLocation.STR_LAT,"-1");
-            ret.put(MLocation.STR_LON,"-1");
-            ret.put(MLocation.STR_ACR,"-1");
-            ret.put(MLocation.STR_ALT,"-1");
+            ret.put(MLocation.STR_LAT,"-4");
+            ret.put(MLocation.STR_LON,"-4");
+            ret.put(MLocation.STR_ACR,"-4");
+            ret.put(MLocation.STR_ALT,"-4");
             e.printStackTrace();
         }
         return ret;
     }
 
+    /**
+     * 위치 업데이트를 위해 더미 리스너 생성
+     */
+    public static LocationListener locationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            try {
+                LocationManager mLocationManager = (LocationManager) Common.getInstance().context.getApplicationContext().getSystemService(Common.getInstance().context.LOCATION_SERVICE);
+                mLocationManager.removeUpdates(MLocation.locationListener);
+            } catch (SecurityException e){
+                Common.log(e.toString());
+            }
+        }
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+        }
+    };
 }

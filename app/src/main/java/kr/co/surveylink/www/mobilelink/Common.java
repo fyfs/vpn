@@ -2,7 +2,6 @@ package kr.co.surveylink.www.mobilelink;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -23,7 +22,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 /**
- * Created by jsyang on 2016-09-02.
+ * 일반적으로 사용되는 것들을 모아놓은 class
  */
 public class Common {
 
@@ -35,14 +34,15 @@ public class Common {
         return instance;
     }
 
+    static private String preferenceName = "userinfo";
+    static private String secureKey = "app_mobileLink";
+
     /** Log 남길 때 필터를 걸기 위한 TAG */
     final String TAG = "MYLOG";
     /** 테스트중인지 여부 */
     final boolean isTest = true;
     /** 모든 전송을 바로 할 것인지 여부 */
     boolean sendImmediately = false;
-    /** 장치 고유 ID */
-    String deviceId = "";
     /** data 전송시 처리되야 할 activity 작업이 있다면 사용 */
     Activity activity;
     /** data 전송시 처리되야 할 context 작업이 있다면 사용 */
@@ -66,6 +66,26 @@ public class Common {
     String isNull(String str){
         if(str!=null)return str;
         return "";
+    }
+
+    /**
+     * null 을 0으로 반한
+     * @param num 입력값
+     * @return 반환값
+     */
+    Integer isNull(Integer num){
+        if(num!=null)return num;
+        return 0;
+    }
+
+    /**
+     * null 을 0으로 반한
+     * @param num 입력값
+     * @return 반환값
+     */
+    Long isNull(Long num){
+        if(num!=null)return num;
+        return 0l;
     }
 
     /** 로그 출력 */
@@ -101,10 +121,34 @@ public class Common {
             tmSerial = "" + tm.getSimSerialNumber();
             androidId = "" + android.provider.Settings.Secure.getString(activity.getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
             UUID deviceUuid = new UUID(androidId.hashCode(), ((long) tmDevice.hashCode() << 32) | tmSerial.hashCode());
-            deviceId = deviceUuid.toString();
+            setPreference(activity.getApplicationContext(),"deviceId",deviceUuid.toString());
         } catch(Exception e){
             Common.log(e.toString());
         }
+    }
+
+    /**
+     * 기기 저장값 가져오기
+     * @param context context
+     * @param prefKey key
+     * @return value
+     */
+    static public String getPreference(Context context,String prefKey){
+        SecurePreferences preferences = new SecurePreferences(context, preferenceName,secureKey, true);
+        String result = preferences.getString(prefKey);
+        if(result==null)result="";
+        return result;
+    }
+
+    /**
+     * 기기 저장값 저장
+     * @param context context
+     * @param prefKey key
+     * @param prefValue value
+     */
+    static public void setPreference(Context context,String prefKey,String prefValue){
+        SecurePreferences preferences = new SecurePreferences(context, preferenceName,secureKey, true);
+        preferences.put(prefKey,prefValue);
     }
 
     /**
@@ -152,7 +196,7 @@ public class Common {
             try {
                 //기본적으로 deviceId 전달
                 params = "";
-                params += "uid=" + URLEncoder.encode(deviceId, "UTF-8");
+                params += "uid=" + URLEncoder.encode(getPreference(context,"deviceId"), "UTF-8");
                 //추가로 입력받은 파라메터가 있다면 전달
                 if(datas!=null) {
                     int i;
@@ -241,5 +285,32 @@ public class Common {
                 connection.disconnect();
             }
         }
+    }
+
+    /**
+     * 시간(long)을 초/분/시간/일로 반환
+     * @param time 입력시간
+     * @return 반환값
+     */
+    public String timeToStr(long time){
+        String ret = "";
+        time/=1000;
+        if(time<60){
+            ret = Long.toString(time)+"초";
+            return ret;
+        }
+        time/=60;
+        if(time<1000){
+            ret = Long.toString(time)+"분";
+            return ret;
+        }
+        time/=60;
+        if(time<100){
+            ret = Long.toString(time)+"시간";
+            return ret;
+        }
+        time/=24;
+        ret = Long.toString(time)+"일";
+        return ret;
     }
 }

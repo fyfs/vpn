@@ -45,10 +45,8 @@ public class MActivity implements IDataHandler {
     private String lastActivity = "";
     /** package가 여러개 조회되었을 때엔 기존 package들에서 추가된 것을 확인해서 판별하기 위해 기존 리스트를 저장해둔다 */
     private List<String> lastPackages = new ArrayList<>();
-    /** 시작시각 */
-    private long startTime = (new Date()).getTime();
-    /** 사용시간 */
-    private long useTime = 0;
+    /** 앱별 시작시각 */
+    HashMap<String,Long> appStartTime = new HashMap<>();
 
     /** 여러건을 모아서 한 번에 저장하기 위해 data 에 담아둠 */
     private JSONArray data = new JSONArray();
@@ -120,14 +118,13 @@ public class MActivity implements IDataHandler {
                 Common.log(e.toString());
             }
         }
-        if(lastPackageName.equals(packageName)){
-            useTime=(new Date()).getTime()-startTime;
-        } else {
+        if(!lastPackageName.equals(packageName)){
             change(context);
+            save(context);
             lastPackageName=packageName;
             lastActivity=activity;
             lastPackages=curPackages;
-            startTime=(new Date()).getTime();
+            appStartTime.put(packageName,new Date().getTime());
         }
     }
 
@@ -228,6 +225,8 @@ public class MActivity implements IDataHandler {
     private void change(Context context){
         //처음엔 공백이므로 저장하지 않음
         if(lastPackageName.equals(""))return;
+        Long startTime = appStartTime.get(lastPackageName);
+        Long useTime = (new Date().getTime())-startTime;
         //사용시간이 너무 짧으면 저장하지 않음
         if(useTime<1000)return;
         JSONObject obj = new JSONObject();
@@ -248,6 +247,13 @@ public class MActivity implements IDataHandler {
             obj.put("ln", gps.get(MLocation.STR_LON));
             obj.put("ac", gps.get(MLocation.STR_ACR));
             obj.put("al", gps.get(MLocation.STR_ALT));
+            //통계정보 저장
+            int appFreq = Common.getInstance().isNull(MStatistics.getInstance().appFreq.get(lastPackageName));
+            MStatistics.getInstance().appFreq.put(lastPackageName,++appFreq);
+            Common.log(MStatistics.getInstance().appFreq);
+            Long appLong = Common.getInstance().isNull(MStatistics.getInstance().appLong.get(lastPackageName));
+            MStatistics.getInstance().appLong.put(lastPackageName,appLong+useTime);
+            MStatistics.getInstance().appUseTime+=useTime;
         } catch (Exception e){
             Common.log(e.toString());
         }
@@ -259,6 +265,7 @@ public class MActivity implements IDataHandler {
      * @param context context
      */
     public void save(Context context){
+        if(!MPermissions.getInstance().isPermissionOk(context))return;
         String currentTime = Long.toString(new Date().getTime());
         Object[][] params = {{"list",data.toString()},{"currentTime",currentTime}};
         Common.getInstance().loadData(Common.HttpAsyncTask.CALLTYPE_ACTIVITY_SAVE, context.getString(R.string.url_MActivity), params, this);

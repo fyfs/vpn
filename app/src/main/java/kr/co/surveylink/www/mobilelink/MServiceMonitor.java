@@ -11,7 +11,9 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.SystemClock;
 
 import java.util.Date;
@@ -37,6 +39,26 @@ public class MServiceMonitor {
         public void onReceive(Context context, Intent intent) {
             if (isRunningService(context, MService.class) == false) {
                 context.startService(new Intent(context, MService.class));
+            }
+        }
+    }
+
+    /**
+     * 재부팅 되었을 때 서비스를 재가동하기 위해 Receive
+     */
+    public static class BootCompletedIntentReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if ("android.intent.action.BOOT_COMPLETED".equals(intent.getAction())) {
+                context.startService(new Intent(context, MyAccessibilityService.class));
+                context.startService(new Intent(context, MService.class));
+                /* reboot 후에 위치를 가져오는데 오래걸려서 listener를 등록해 바로 가져오도록 한다 */
+                try {
+                    LocationManager mLocationManager = (LocationManager) context.getApplicationContext().getSystemService(context.LOCATION_SERVICE);
+                    mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, MLocation.locationListener, Looper.getMainLooper());
+                } catch (SecurityException e){
+                    Common.log(e.toString());
+                }
             }
         }
     }
@@ -71,7 +93,6 @@ public class MServiceMonitor {
             for(ActivityManager.RunningServiceInfo serviceInfo : info) {
                 ComponentName compName = serviceInfo.service;
                 String className = compName.getClassName();
-
                 if(className.equals(cls.getName())) {
                     isRunning = true;
                     break;
@@ -93,15 +114,11 @@ public class MServiceMonitor {
             super.onCreate();
             mActivityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
             serviceRunning = true;
-
-            //앱 설치/제거/업데이트 로그
-            //MAddRemove.getInstance().addReceiver(getApplicationContext());
         }
 
         @Override
         public void onDestroy() {
             serviceRunning = false;
-            //MAddRemove.getInstance().removeReceiver(getApplicationContext());
             super.onDestroy();
         }
 
@@ -113,6 +130,7 @@ public class MServiceMonitor {
                     public void run() {
                         while (serviceRunning) {
                             Long now = (new Date()).getTime();
+                            Common.getInstance().context=getApplicationContext();
                             //MActivity retriveApp
                             if(Common.getInstance().lasttime_retriveApp+Common.getInstance().interval_retriveApp<now){
                                 MActivity.getInstance().retriveApp(getApplicationContext());

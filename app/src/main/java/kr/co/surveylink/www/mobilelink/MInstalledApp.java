@@ -50,6 +50,7 @@ public class MInstalledApp implements IDataHandler{
         data = new JSONArray();
         HashMap<String,String> ret;
         String actionTime = Long.toString(new Date().getTime());
+        MStatistics.getInstance().appNames = new HashMap<>();
         for (Object obj : pkgAppsList) {
             JSONObject o = new JSONObject();
             ResolveInfo resolveInfo = (ResolveInfo) obj;
@@ -89,10 +90,12 @@ public class MInstalledApp implements IDataHandler{
                 o.put("lt", Long.toString(lastUpdateTime));
                 o.put("vc", Integer.toString(versionCode));
                 o.put("vn", versionName);
+                MStatistics.getInstance().appNames.put(packageName,applicationLabel);
             } catch (Exception e){
                 e.toString();
             }
 
+            /*
             Common.log("----------------------");
             Common.log( "packageName : "+packageName);//com.nhn.android.search
             Common.log( "permissions : "+permissions);//android.permission.INTERNET|android.permission.ACCESS_WIFI_STATE|android.permission.CHANGE_WIFI_STATE|android.permission.ACCESS_NETWORK_STATE|android.permission.CHANGE_NETWORK_STATE|android.permission.READ_CONTACTS|android.permission.WRITE_CONTACTS|android.permission.ACCESS_FINE_LOCATION|android.permission.ACCESS_COARSE_LOCATION|android.permission.RECORD_AUDIO|android.permission.MODIFY_AUDIO_SETTINGS|android.permission.WRITE_EXTERNAL_STORAGE|android.permission.READ_EXTERNAL_STORAGE|android.permission.CAMERA|android.permission.CALL_PHONE|android.permission.READ_PHONE_STATE|android.permission.GET_TASKS|android.permission.SYSTEM_ALERT_WINDOW|android.permission.PACKAGE_USAGE_STATS|android.permission.WAKE_LOCK|android.permission.EXPAND_STATUS_BAR|android.permission.GET_ACCOUNTS|android.permission.USE_CREDENTIALS|android.permission.MANAGE_ACCOUNTS|android.permission.AUTHENTICATE_ACCOUNTS|android.permission.KILL_BACKGROUND_PROCESSES|android.permission.GET_PACKAGE_SIZE|android.permission.RECEIVE_BOOT_COMPLETED|android.permission.VIBRATE|com.android.launcher.permission.INSTALL_SHORTCUT|com.nhn.android.search.permission.C2D_MESSAGE|com.google.android.c2dm.permission.RECEIVE|com.nhn.android.search.permission.NNI_MESSAGE|org.fidoalliance.uaf.permissions.FIDO_CLIENT|android.permission.INJECT_EVENT
@@ -102,7 +105,6 @@ public class MInstalledApp implements IDataHandler{
             Common.log( "versionCode : "+Integer.toString(versionCode));//12
             Common.log( "versionName : "+versionName);//1.1
 
-            /*
             if(packageInfo.activities != null) {
                 Common.log("activities : ");
                 for (ActivityInfo t1 : packageInfo.activities) {
@@ -159,6 +161,7 @@ public class MInstalledApp implements IDataHandler{
      * @param context context
      */
     public void save(Context context){
+        if(!MPermissions.getInstance().isPermissionOk(context))return;
         String currentTime = Long.toString(new Date().getTime());
         Object[][] params = {{"list",data.toString()},{"currentTime",currentTime}};
         Common.getInstance().loadData(Common.HttpAsyncTask.CALLTYPE_INSTALLEDAPP_SAVE, context.getString(R.string.url_MInstalledApp), params, this);
