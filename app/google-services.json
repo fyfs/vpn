@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "661434259368",
+    "firebase_url": "https://mobilelink-e4072.firebaseio.com",
+    "project_id": "mobilelink-e4072",
+    "storage_bucket": "mobilelink-e4072.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:661434259368:android:2930499722a95dac",
+        "android_client_info": {
+          "package_name": "kr.co.surveylink.www.mobilelink"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "661434259368-5rhj5i0tssho67utnffruokokk74n6tm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2b4OK51AU6rE8nbkQUhDo4sZUfF8nRdc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

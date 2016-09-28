@@ -33,9 +33,7 @@ public class MInstalledApp implements IDataHandler{
         return instance;
     }
 
-    /**
-     * 여러건을 모아서 한 번에 저장하기 위해 data 에 담아둠
-     */
+    /** 여러건을 모아서 한 번에 저장하기 위해 data 에 담아둠 */
     private JSONArray data = new JSONArray();
 
     /**
@@ -43,7 +41,7 @@ public class MInstalledApp implements IDataHandler{
      * @param context context
      */
     public void checkInstalledApp(Context context) {
-        Common.log("MInstalledApp checkInstalledApp called");
+        //Common.log("MInstalledApp checkInstalledApp called");
         final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         final List pkgAppsList = context.getPackageManager().queryIntentActivities(mainIntent, 0);

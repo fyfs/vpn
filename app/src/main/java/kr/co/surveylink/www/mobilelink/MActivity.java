@@ -47,6 +47,10 @@ public class MActivity implements IDataHandler {
     private List<String> lastPackages = new ArrayList<>();
     /** 앱별 시작시각 */
     HashMap<String,Long> appStartTime = new HashMap<>();
+    /** 앱 데이터 수신량 */
+    HashMap<String,Long> appStartRx = new HashMap<>();
+    /** 앱 데이터 송신량 */
+    HashMap<String,Long> appStartTx = new HashMap<>();
 
     /** 여러건을 모아서 한 번에 저장하기 위해 data 에 담아둠 */
     private JSONArray data = new JSONArray();
@@ -56,7 +60,8 @@ public class MActivity implements IDataHandler {
         String processName = "";
         String activity = "";
         List<String> curPackages = new ArrayList<>();
-        if(isDisplayOn(context)) {
+        boolean displayOn = isDisplayOn(context);
+        if(displayOn) {
             try {
                 ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
                 processName = am.getRunningAppProcesses().get(0).processName;
@@ -125,6 +130,9 @@ public class MActivity implements IDataHandler {
             lastActivity=activity;
             lastPackages=curPackages;
             appStartTime.put(packageName,new Date().getTime());
+            HashMap<String,Long> rxtx = MTraffic.getInstance().getRxTx(packageName);
+            appStartRx.put(packageName,rxtx.get("rx"));
+            appStartTx.put(packageName,rxtx.get("tx"));
         }
     }
 
@@ -205,7 +213,7 @@ public class MActivity implements IDataHandler {
         if(Build.VERSION.SDK_INT>=20) {
             DisplayManager dm = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
             for (Display display : dm.getDisplays()) {
-                if (display.getState() != Display.STATE_OFF) {
+                if (display.getState()==Display.STATE_ON) {
                     return true;
                 }
             }
@@ -225,13 +233,24 @@ public class MActivity implements IDataHandler {
     private void change(Context context){
         //처음엔 공백이므로 저장하지 않음
         if(lastPackageName.equals(""))return;
+        //사용시간
         Long startTime = appStartTime.get(lastPackageName);
         Long useTime = (new Date().getTime())-startTime;
         //사용시간이 너무 짧으면 저장하지 않음
         if(useTime<1000)return;
+        //데이터 사용량
+        Long startRx = appStartRx.get(lastPackageName);
+        Long startTx = appStartTx.get(lastPackageName);
+        HashMap<String,Long> rxtx = MTraffic.getInstance().getRxTx(lastPackageName);
+        Long useRx = rxtx.get("rx")-startRx;
+        Long useTx = rxtx.get("tx")-startTx;
+        if(useRx<0)useRx=-1l;
+        if(useTx<0)useTx=-1l;
+
         JSONObject obj = new JSONObject();
+        String cellWifi = "";
         try {
-            String cellWifi = MCellWifi.getInstance().getNetworkState(context);
+            cellWifi = MCellWifi.getInstance().getNetworkState(context);
             HashMap<String,String> cellId = MLocation.getInstance().getByCellId(context);
             HashMap<String,String> gps = MLocation.getInstance().getGps(context);
             obj.put("at",Long.toString(new Date().getTime()));
@@ -247,10 +266,11 @@ public class MActivity implements IDataHandler {
             obj.put("ln", gps.get(MLocation.STR_LON));
             obj.put("ac", gps.get(MLocation.STR_ACR));
             obj.put("al", gps.get(MLocation.STR_ALT));
+            obj.put("rx", Long.toString(useRx));
+            obj.put("tx", Long.toString(useTx));
             //통계정보 저장
             int appFreq = Common.getInstance().isNull(MStatistics.getInstance().appFreq.get(lastPackageName));
             MStatistics.getInstance().appFreq.put(lastPackageName,++appFreq);
-            Common.log(MStatistics.getInstance().appFreq);
             Long appLong = Common.getInstance().isNull(MStatistics.getInstance().appLong.get(lastPackageName));
             MStatistics.getInstance().appLong.put(lastPackageName,appLong+useTime);
             MStatistics.getInstance().appUseTime+=useTime;
@@ -258,6 +278,8 @@ public class MActivity implements IDataHandler {
             Common.log(e.toString());
         }
         data.put(obj);
+        Common.log(obj.toString());
+        if(Common.getInstance().sendImmediately || cellWifi.equals("WIFI"))save(context);
     }
 
     /**

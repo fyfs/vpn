@@ -31,13 +31,15 @@ public class MAddRemove implements IDataHandler {
      * @param action 발생한 이벤트 (PACKAGE_ADDED / PACKAGE_FULLY_REMOVED / PACKAGE_REPLACED)
      * @param packageName 패키지명 (kr.co.marketlink.ideapanel)
      */
-    public void action(String action,String packageName){
+    public void action(Context context, String action,String packageName){
         JSONObject obj = new JSONObject();
         try{
             obj.put("at",Long.toString(new Date().getTime()));
             obj.put("act",action.replace("android.intent.action.",""));
             obj.put("pkg",packageName);
             data.put(obj);
+            String cellWifi = MCellWifi.getInstance().getNetworkState(context);
+            if(Common.getInstance().sendImmediately || cellWifi.equals("WIFI"))save(context);
         } catch (Exception e){
             Common.log(e.toString());
         }
@@ -90,11 +92,11 @@ public class MAddRemove implements IDataHandler {
     static public class AddRemoveReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Common.log("AddRemoveReceiver onReceive called");
+            //Common.log("AddRemoveReceiver onReceive called");
             try {
                 String action = intent.getAction();
                 String packageName = intent.getData().getSchemeSpecificPart();
-                MAddRemove.getInstance().action(action, packageName);
+                MAddRemove.getInstance().action(context, action, packageName);
                 if(Common.getInstance().sendImmediately)MAddRemove.getInstance().save(context);
             } catch(Exception e){
                 e.printStackTrace();

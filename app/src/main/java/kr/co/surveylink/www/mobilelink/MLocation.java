@@ -46,15 +46,18 @@ public class MLocation {
      * @return CellLocation,GSMCELLID,GSMMLocationCode
      */
     public HashMap<String,String> getByCellId(Context context){
-        Common.log("MLocation getByCellId called");
+        //Common.log("MLocation getByCellId called");
         HashMap<String,String> ret = new HashMap<String,String>();
         int permissionCheck = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION);
         if(permissionCheck== PackageManager.PERMISSION_DENIED){
             Common.log("ACCESS_COARSE_LOCATION permission denied");
+            MPermissions.getInstance().permissionChanged(context,MPermissions.NEED_ACCESS_COARSE_LOCATION,true);
             ret.put(MLocation.STR_CELLLOCATION,"-1");
             ret.put(MLocation.STR_GSMCELLID,"-1");
             ret.put(MLocation.STR_GSMLOCATIONCODE,"-1");
             return ret;
+        } else {
+            MPermissions.getInstance().permissionChanged(context,MPermissions.NEED_ACCESS_COARSE_LOCATION,false);
         }
         TelephonyManager telephonyManager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
         GsmCellLocation cellLocation = (GsmCellLocation)telephonyManager.getCellLocation();
@@ -70,7 +73,7 @@ public class MLocation {
      * @return lat/lon/acr/alt
      */
     public HashMap<String,String> getGps(Context context){
-        Common.log("MLocation getGps called");
+        //Common.log("MLocation getGps called");
         HashMap<String,String> ret = new HashMap<String,String>();
         ret.put(MLocation.STR_LAT,"-1");
         ret.put(MLocation.STR_LON,"-1");
@@ -79,22 +82,28 @@ public class MLocation {
         int permissionCheck = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
         if(permissionCheck== PackageManager.PERMISSION_DENIED){
             Common.log("ACCESS_FINE_LOCATION permission denied");
+            MPermissions.getInstance().permissionChanged(context,MPermissions.NEED_ACCESS_FINE_LOCATION,true);
             ret.put(MLocation.STR_LAT,"-2");
             ret.put(MLocation.STR_LON,"-2");
             ret.put(MLocation.STR_ACR,"-2");
             ret.put(MLocation.STR_ALT,"-2");
             return ret;
+        } else {
+            MPermissions.getInstance().permissionChanged(context,MPermissions.NEED_ACCESS_FINE_LOCATION,false);
         }
         LocationManager mLocationManager = (LocationManager)context.getApplicationContext().getSystemService(context.LOCATION_SERVICE);
         List<String> providers = mLocationManager.getProviders(new Criteria(),true);
         Location bestLocation = null;
         if(providers.size()==0) {
             Common.log("위치 서비스가 활성화되어있지 않습니다");
+            MPermissions.getInstance().permissionChanged(context,MPermissions.NEED_GPS,true);
             ret.put(MLocation.STR_LAT,"-3");
             ret.put(MLocation.STR_LON,"-3");
             ret.put(MLocation.STR_ACR,"-3");
             ret.put(MLocation.STR_ALT,"-3");
             return ret;
+        } else {
+            MPermissions.getInstance().permissionChanged(context,MPermissions.NEED_GPS,false);
         }
         try {
             for (String provider : providers) {
@@ -111,9 +120,11 @@ public class MLocation {
                 }
 
             }
+            MPermissions.getInstance().permissionChanged(context,MPermissions.NEED_LOCATION,false);
         }
         catch (SecurityException | NullPointerException e){
             //permission 허용안함
+            MPermissions.getInstance().permissionChanged(context,MPermissions.NEED_LOCATION,true);
             ret.put(MLocation.STR_LAT,"-4");
             ret.put(MLocation.STR_LON,"-4");
             ret.put(MLocation.STR_ACR,"-4");

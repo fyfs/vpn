@@ -118,6 +118,7 @@ public class MStatistics {
         String ret = "";
         Long currentTime = new Date().getTime();
         Long totalTime = currentTime-statStartTime;
+        if(appUseTime>totalTime)appUseTime=totalTime;
         ret+=Common.getInstance().timeToStr(appUseTime)+" / ";
         ret+=Common.getInstance().timeToStr(totalTime);
         return ret;

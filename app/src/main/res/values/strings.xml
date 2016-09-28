@@ -1,8 +1,9 @@
 <resources>
 
     <string name="app_name">MobileLink</string>
-    <string name="permission">권한 메뉴에서 모든 권한을 허용해주세요</string>
+    <string name="permission">정상적인 앱 실행을 위해 [권한] 메뉴에서 해당 권한을 허용해주세요</string>
     <string name="usageAccess">정상적인 앱 실행을 위해 [설정] > [보안] > [사용정보 접근 허용]에서 Mobilelink 를 허용해주세요</string>
+    <string name="noti_needPermission">정상적인 앱 실행을 위해 권한 설정을 해주세요</string>
 
     <string name="lbl_currentState">현재 상태 :</string>
     <string name="lbl_currentState_abnormal">비정상</string>
@@ -12,14 +13,22 @@
     <string name="lbl_longApp">가장 오래 실행한 앱 :</string>
     <string name="lbl_usetime">앱 사용시간/전체시간 :</string>
     <string name="lbl_noStat">통계정보 없음</string>
+    <string name="lbl_needPermission">정상적인 앱 실행을 위해 아래 버튼을 눌러 권한을 설정해주세요</string>
 
-    <string name="btn_permission">통계정보 권한 설정</string>
-    <string name="btn_usageAccess">앱 사용정보 권한 설정</string>
+    <string name="btn_permission">통계정보 설정</string>
+    <string name="btn_usageAccess">앱 사용정보 설정</string>
+    <string name="btn_vpn">VPN 설정</string>
     <string name="btn_reset">통계자료 초기화</string>
     <string name="btn_test">테스트 버튼</string>
 
     <string name="url_MAddRemove">http://192.168.1.21/MAddRemove</string>
     <string name="url_MInstalledApp">http://192.168.1.21/MInstalledApp</string>
     <string name="url_MActivity">http://192.168.1.21/MActivity</string>
+    <string name="url_MTraffic">http://192.168.1.21/MTraffic</string>
+    <string name="url_MUserinfo">http://192.168.1.21/MUserinfo</string>
+
+    <string name="connecting">ToyVPN is connecting...</string>
+    <string name="connected">ToyVPN is connected!</string>
+    <string name="disconnected">ToyVPN is disconnected!</string>
 
 </resources>

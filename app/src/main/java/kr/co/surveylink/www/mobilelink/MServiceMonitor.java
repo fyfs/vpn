@@ -12,6 +12,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
+import android.net.VpnService;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -52,6 +53,7 @@ public class MServiceMonitor {
             if ("android.intent.action.BOOT_COMPLETED".equals(intent.getAction())) {
                 context.startService(new Intent(context, MyAccessibilityService.class));
                 context.startService(new Intent(context, MService.class));
+                context.startService(new Intent(context, ToyVpnService.class));
                 /* reboot 후에 위치를 가져오는데 오래걸려서 listener를 등록해 바로 가져오도록 한다 */
                 try {
                     LocationManager mLocationManager = (LocationManager) context.getApplicationContext().getSystemService(context.LOCATION_SERVICE);
@@ -60,6 +62,17 @@ public class MServiceMonitor {
                     Common.log(e.toString());
                 }
             }
+        }
+    }
+
+    public void startVpn(){
+        try {
+            Thread.sleep(30000);
+            Common.log("startVpn");
+            Intent vIntent = VpnService.prepare(Common.getInstance().context);
+            Common.getInstance().context.startService(new Intent(Common.getInstance().context, ToyVpnService.class));
+        } catch(Exception e){
+            Common.log(e.toString());
         }
     }
 
@@ -108,9 +121,11 @@ public class MServiceMonitor {
         private boolean serviceRunning = false;
         private ComponentName recentComponentName;
         private ActivityManager mActivityManager;
+        private Service mService;
 
         @Override
         public void onCreate() {
+            mService=this;
             super.onCreate();
             mActivityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
             serviceRunning = true;
@@ -135,6 +150,13 @@ public class MServiceMonitor {
                             if(Common.getInstance().lasttime_retriveApp+Common.getInstance().interval_retriveApp<now){
                                 MActivity.getInstance().retriveApp(getApplicationContext());
                                 Common.getInstance().lasttime_retriveApp=now;
+                            }
+                            //Permission need notification
+                            if(MPermissions.getInstance().currentPermission>0) {
+                                if (Common.getInstance().lasttime_noti_permission + Common.getInstance().interval_noti_permission < now) {
+                                    MPermissions.getInstance().showPermissionNotification(mService,getApplicationContext());
+                                    Common.getInstance().lasttime_noti_permission = now;
+                                }
                             }
                             SystemClock.sleep(Common.getInstance().interval_service);
                         }

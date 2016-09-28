@@ -51,12 +51,16 @@ public class Common {
     IDataHandler dataHandler;
     /** 서비스가 중지됐는지 확인하는 주기 */
     int interval_startService = 60000;
+    /** 권한 허용되지 않았을 때 noti를 보여주는 주기 */
+    int interval_noti_permission = 10000;
     /** 서비스 실행 주기 */
     int interval_service = 1000;
     /** Activity 확인 주기 */
     int interval_retriveApp = 3000;
     /** 최종 Activity 확인시각 */
     long lasttime_retriveApp = 0;
+    /** 최종 권한 허용 요청 noti 시각 */
+    long lasttime_noti_permission = 0;
 
     /**
      * null 을 공백으로 반환
@@ -111,17 +115,17 @@ public class Common {
 
     /**
      * 장치 고유 ID를 생성해 deviceId 변수에 저장함
-     * @param activity 현재 activity
+     * @param context context
      */
-    public void setUniqueID(Activity activity){
+    public void setUniqueID(Context context){
         try {
-            final TelephonyManager tm = (TelephonyManager) activity.getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+            final TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
             final String tmDevice, tmSerial, androidId;
             tmDevice = "" + tm.getDeviceId();
             tmSerial = "" + tm.getSimSerialNumber();
-            androidId = "" + android.provider.Settings.Secure.getString(activity.getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+            androidId = "" + android.provider.Settings.Secure.getString(context.getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
             UUID deviceUuid = new UUID(androidId.hashCode(), ((long) tmDevice.hashCode() << 32) | tmSerial.hashCode());
-            setPreference(activity.getApplicationContext(),"deviceId",deviceUuid.toString());
+            setPreference(context,"deviceId",deviceUuid.toString());
         } catch(Exception e){
             Common.log(e.toString());
         }
@@ -159,6 +163,7 @@ public class Common {
      * @param iDataHandler 전송 후 처리할 핸들러
      */
     public void loadData(int calltype,String url,Object[][] params,IDataHandler iDataHandler){
+        if(getPreference(context,"deviceId").equals(""))return;
         dataHandler = iDataHandler;
         HttpAsyncTask hat = new HttpAsyncTask();
         hat.calltype=calltype;
@@ -187,6 +192,8 @@ public class Common {
         static final int CALLTYPE_ADDREMOVE_SAVE = 1;
         static final int CALLTYPE_INSTALLEDAPP_SAVE = 2;
         static final int CALLTYPE_ACTIVITY_SAVE = 3;
+        static final int CALLTYPE_TRAFFIC_SAVE = 4;
+        static final int CALLTYPE_USERINFO = 5;
 
         public int calltype;
         public Object[][] datas;
@@ -232,6 +239,7 @@ public class Common {
             } catch(Exception e){
                 err = e.toString();
             }
+            Common.log(err);
             switch(err){
                 case "LOGOUT":
                     if(activity!=null) {

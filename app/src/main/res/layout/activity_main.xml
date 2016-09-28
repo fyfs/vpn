@@ -95,19 +95,37 @@
                 android:id="@+id/tv_usetime"/>
         </LinearLayout>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/lbl_needPermission"
+            android:id="@+id/tv_needPermission"
+            android:textColor="#ff0000"
+            android:visibility="gone"/>
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/btn_permissions"
             android:text="@string/btn_permission"
-            android:onClick="onClick"/>
+            android:onClick="onClick"
+            android:visibility="gone"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/btn_usageAccess"
             android:text="@string/btn_usageAccess"
-            android:onClick="onClick"/>
+            android:onClick="onClick"
+            android:visibility="gone"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btn_vpn"
+            android:text="@string/btn_vpn"
+            android:onClick="onClick"
+            android:visibility="gone"/>
 
         <Button
             android:layout_width="wrap_content"
