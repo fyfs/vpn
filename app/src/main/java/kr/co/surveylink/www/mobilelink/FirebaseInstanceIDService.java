@@ -12,7 +12,6 @@ public class FirebaseInstanceIDService extends FirebaseInstanceIdService {
 
     @Override
     public void onTokenRefresh() {
-        Common.log("----A");
         MUserinfo.getInstance().savePushToken(getApplicationContext());
     }
 

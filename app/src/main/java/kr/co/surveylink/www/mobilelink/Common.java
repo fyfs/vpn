@@ -162,13 +162,14 @@ public class Common {
      * @param params 변수들
      * @param iDataHandler 전송 후 처리할 핸들러
      */
-    public void loadData(int calltype,String url,Object[][] params,IDataHandler iDataHandler){
-        if(getPreference(context,"deviceId").equals(""))return;
+    public boolean loadData(int calltype,String url,Object[][] params,IDataHandler iDataHandler){
+        if(getPreference(context,"deviceId").equals(""))return false;
         dataHandler = iDataHandler;
         HttpAsyncTask hat = new HttpAsyncTask();
         hat.calltype=calltype;
         hat.datas =params;
         hat.execute(url);
+        return true;
     }
 
     /**

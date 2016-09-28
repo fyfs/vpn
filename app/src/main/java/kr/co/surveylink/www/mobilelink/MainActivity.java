@@ -82,7 +82,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
         }
 
         //푸시 토큰 저장
-        Common.log("----B");
         MUserinfo.getInstance().savePushToken(getApplicationContext());
 
         //권한 상태

@@ -24,6 +24,7 @@ public class MUserinfo implements IDataHandler {
 
     /** 여러건을 모아서 한 번에 저장하기 위해 data 에 담아둠 */
     private JSONArray data = new JSONArray();
+    private int save_cnt=0;
 
     /**
      * data 에 저장되어 있는 값들을 전송함
@@ -32,7 +33,7 @@ public class MUserinfo implements IDataHandler {
     public void save(Context context){
         String currentTime = Long.toString(new Date().getTime());
         Object[][] params = {{"list",data.toString()},{"currentTime",currentTime}};
-        Common.getInstance().loadData(Common.HttpAsyncTask.CALLTYPE_USERINFO, context.getString(R.string.url_MUserinfo), params, this);
+        if(Common.getInstance().loadData(Common.HttpAsyncTask.CALLTYPE_USERINFO, context.getString(R.string.url_MUserinfo), params, this))save_cnt++;
     }
 
     /**
@@ -53,10 +54,12 @@ public class MUserinfo implements IDataHandler {
      * @param result 결과 문자열
      */
     private void saveHandler(String result) {
+        save_cnt--;
+        Common.log(save_cnt);
         try {
             JSONObject json = new JSONObject(result);
             String err = json.getString("ERR");
-            if(err.equals("")){
+            if(err.equals("") && save_cnt==0){
                 data = new JSONArray();
             }
         } catch (Exception e){
@@ -69,17 +72,11 @@ public class MUserinfo implements IDataHandler {
      * @param context context
      */
     public void savePushToken(Context context){
-        Common.log("---1");
         if(Common.getInstance().isNull(Common.getPreference(context,"deviceId")).equals(""))return;
-        Common.log("---2");
         String token = Common.getInstance().isNull(FirebaseInstanceId.getInstance().getToken());
-        Common.log("---3");
         if(token.equals(""))return;
-        Common.log("---4");
         if(Common.getPreference(context,"token").equals(token))return;
-        Common.log("---5");
         Common.setPreference(context,"token",token);
-        Common.log("---6");
         try {
             JSONObject json = new JSONObject();
             String currentTime = Long.toString(new Date().getTime());
@@ -88,7 +85,6 @@ public class MUserinfo implements IDataHandler {
             json.put("T",currentTime);
             data.put(json);
             save(context);
-            Common.log("---7");
         } catch (Exception e){
             Common.log(e.toString());
         }
