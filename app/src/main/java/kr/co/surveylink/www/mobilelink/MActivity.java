@@ -40,7 +40,7 @@ public class MActivity implements IDataHandler {
     }
 
     /** 마지막으로 실행한 packageName */
-    private String lastPackageName = "";
+    public String lastPackageName = "";
     /** 마지막으로 실행한 activity */
     private String lastActivity = "";
     /** package가 여러개 조회되었을 때엔 기존 package들에서 추가된 것을 확인해서 판별하기 위해 기존 리스트를 저장해둔다 */

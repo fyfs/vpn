@@ -53,9 +53,9 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
     private ParcelFileDescriptor mInterface;
     private String mParameters;
 
-    private String mServerAddress = "192.168.1.16";
-    private String mServerPort = "8000";
-    private byte[] mSharedSecret = "test".getBytes();
+    private String mServerAddress = "182.162.101.154";
+    private String mServerPort = "8001";
+    private byte[] mSharedSecret = "mobilelink!".getBytes();
 
     static private boolean needRestart = false;
     static private List<String> allowPackages = new ArrayList<>();
@@ -320,6 +320,7 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
             try {
                 builder.addAllowedApplication(getPackageName());
                 builder.addAllowedApplication("com.sec.android.app.sbrowser");
+                builder.addAllowedApplication("kr.co.captv.pooqV2");
                 for(int i=0;i<ToyVpnService.allowPackages.size();i++){
                     builder.addAllowedApplication(ToyVpnService.allowPackages.get(i));
                 }

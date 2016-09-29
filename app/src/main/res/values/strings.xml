@@ -21,11 +21,11 @@
     <string name="btn_reset">통계자료 초기화</string>
     <string name="btn_test">테스트 버튼</string>
 
-    <string name="url_MAddRemove">http://192.168.1.21/MAddRemove</string>
-    <string name="url_MInstalledApp">http://192.168.1.21/MInstalledApp</string>
-    <string name="url_MActivity">http://192.168.1.21/MActivity</string>
-    <string name="url_MTraffic">http://192.168.1.21/MTraffic</string>
-    <string name="url_MUserinfo">http://192.168.1.21/MUserinfo</string>
+    <string name="url_MAddRemove">http://mobilelink.surveylink.co.kr/MAddRemove</string>
+    <string name="url_MInstalledApp">http://mobilelink.surveylink.co.kr/MInstalledApp</string>
+    <string name="url_MActivity">http://mobilelink.surveylink.co.kr/MActivity</string>
+    <string name="url_MTraffic">http://mobilelink.surveylink.co.kr/MTraffic</string>
+    <string name="url_MUserinfo">http://mobilelink.surveylink.co.kr/MUserinfo</string>
 
     <string name="connecting">ToyVPN is connecting...</string>
     <string name="connected">ToyVPN is connected!</string>

@@ -11,9 +11,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.firebase.iid.FirebaseInstanceId;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,16 +75,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
         } else {
             MPermissions.getInstance().permissionChanged(getApplicationContext(),MPermissions.NEED_VPN,false);
             btn_vpn.setVisibility(View.GONE);
-
         }
 
         //푸시 토큰 저장
         MUserinfo.getInstance().savePushToken(getApplicationContext());
 
         //권한 상태
-        TextView tv_needPermission = (TextView)findViewById(R.id.tv_needPermission);
         setCurrentStateOk(permissionOk);
-        tv_needPermission.setVisibility(permissionOk?View.GONE:View.VISIBLE);
         if(!permissionOk)return;
 
         //설치된 앱들 확인
@@ -116,8 +110,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
      */
     private void setCurrentStateOk(boolean isNormal){
         TextView tv_currentState = (TextView)findViewById(R.id.tv_currentState);
+        TextView tv_needPermission = (TextView)findViewById(R.id.tv_needPermission);
         tv_currentState.setText(getString(isNormal?R.string.lbl_currentState_normal:R.string.lbl_currentState_abnormal));
         tv_currentState.setTextColor(isNormal?Color.GREEN:Color.RED);
+        tv_needPermission.setVisibility(isNormal?View.GONE:View.VISIBLE);
     }
 
     /**
@@ -160,9 +156,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
     public void onClick(View v){
         clickTime= System.currentTimeMillis();
         switch(v.getId()){
-            //권한 허용 버튼 클릭
+            //일반 권한 허용 버튼 클릭
             case R.id.btn_permissions:MPermissions.getInstance().requestPermissions(this);break;
-            //권한 허용 버튼 클릭
+            //앱 사용정보 권한 허용 버튼 클릭
             case R.id.btn_usageAccess:requestUsageAccess();break;
             //VPN 설정 클릭
             case R.id.btn_vpn:
@@ -189,6 +185,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 break;
             //테스트 실행 버튼 클릭
             case R.id.btn_action:
+                Intent intent2 = VpnService.prepare(this);
+                if (intent2 != null) {
+                    Common.log("A");
+                    MPermissions.getInstance().permissionChanged(getApplicationContext(),MPermissions.NEED_VPN,true);
+                    startActivityForResult(intent2, 0);
+                } else {
+                    Common.log("B");
+                    MPermissions.getInstance().permissionChanged(getApplicationContext(),MPermissions.NEED_VPN,false);
+                    startService(new Intent(this, ToyVpnService.class));
+                }
                 break;
         }
     }

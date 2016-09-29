@@ -55,7 +55,6 @@ public class MUserinfo implements IDataHandler {
      */
     private void saveHandler(String result) {
         save_cnt--;
-        Common.log(save_cnt);
         try {
             JSONObject json = new JSONObject(result);
             String err = json.getString("ERR");

@@ -154,6 +154,8 @@ public class MPermissions{
     }
 
     public void showPermissionNotification(Service s, Context context){
+        //현재 실행중이면 푸시하지 않는다
+        if(MActivity.getInstance().lastPackageName.equals(context.getPackageName()))return;
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         Intent intent = new Intent(context, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

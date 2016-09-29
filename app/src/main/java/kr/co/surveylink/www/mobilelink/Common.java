@@ -52,7 +52,7 @@ public class Common {
     /** 서비스가 중지됐는지 확인하는 주기 */
     int interval_startService = 60000;
     /** 권한 허용되지 않았을 때 noti를 보여주는 주기 */
-    int interval_noti_permission = 10000;
+    int interval_noti_permission = 1000*60*60;
     /** 서비스 실행 주기 */
     int interval_service = 1000;
     /** Activity 확인 주기 */
