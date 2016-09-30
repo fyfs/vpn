@@ -41,8 +41,9 @@ public class MCellWifi {
     static public class CellWifiReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            /*
             Common.log("CellWifiReceiver onReceive called");
+            ToyVpnService.needRestart=true;
+            /*
             try {
                 String action = intent.getAction();
                 WifiManager wm = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);

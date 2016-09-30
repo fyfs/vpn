@@ -67,7 +67,7 @@ public class MServiceMonitor {
 
     public void startVpn(){
         try {
-            Thread.sleep(30000);
+            Thread.sleep(1000);
             Common.log("startVpn");
             Intent vIntent = VpnService.prepare(Common.getInstance().context);
             Common.getInstance().context.startService(new Intent(Common.getInstance().context, ToyVpnService.class));

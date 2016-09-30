@@ -15,7 +15,7 @@
 
     <!--CellWifi-->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <!--<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>--><!--변경추적을 하려면-->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>-
 
     <!--Activity-->
     <uses-permission android:name="android.permission.GET_TASKS"/>
@@ -50,15 +50,15 @@
         </receiver>
 
         <!--CellWifi-->
-        <!--변경추적을 하려면-->
-        <!--
         <receiver android:name=".MCellWifi$CellWifiReceiver">
             <intent-filter>
+                <!--
                 <action android:name="android.net.wifi.NETWORK_IDS_CHANGED"/>
                 <action android:name="android.net.wifi.RSSI_CHANGED"/>
                 <action android:name="android.net.wifi.SCAN_RESULTS"/>
-                <action android:name="android.net.wifi.STATE_CHANGE"/>
+                <action android:name="android.net.wifi.STATE_CHANGE"/>-->
                 <action android:name="android.net.wifi.WIFI_STATE_CHANGED"/>
+                <!--
                 <action android:name="android.net.wifi.p2p.CONNECTION_STATE_CHANGE"/>
                 <action android:name="android.net.wifi.p2p.DISCOVERY_STATE_CHANGE"/>
                 <action android:name="android.net.wifi.p2p.PEERS_CHANGED"/>
@@ -66,9 +66,9 @@
                 <action android:name="android.net.wifi.p2p.THIS_DEVICE_CHANGED"/>
                 <action android:name="android.net.wifi.supplicant.CONNECTION_CHANGE"/>
                 <action android:name="android.net.wifi.supplicant.STATE_CHANGE"/>
+                -->
             </intent-filter>
         </receiver>
-        -->
 
         <service android:name=".MServiceMonitor$MService" android:exported="true"/>
         <receiver android:name=".MServiceMonitor$MonitorBR"/>

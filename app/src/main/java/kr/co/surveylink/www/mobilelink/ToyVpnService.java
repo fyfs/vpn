@@ -57,7 +57,7 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
     private String mServerPort = "8001";
     private byte[] mSharedSecret = "mobilelink!".getBytes();
 
-    static private boolean needRestart = false;
+    static public boolean needRestart = false;
     static private List<String> allowPackages = new ArrayList<>();
 
     @Override
@@ -112,7 +112,7 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
             // is to work with ConnectivityManager, such as trying only when
             // the network is avaiable. Here we just use a counter to keep
             // things simple.
-            for (int attempt = 0; attempt < 3; ++attempt) {
+            for (int attempt = 0; attempt < 1; ++attempt) {
                 //mHandler.sendEmptyMessage(R.string.connecting);
                 Common.log(getString(R.string.connecting));
 
@@ -122,7 +122,7 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
                 }
 
                 // Sleep for a while. This also checks if we got interrupted.
-                Thread.sleep(3000);
+                //Thread.sleep(3000);
             }
             Common.log("VPN-Giving up");
         } catch (Exception e) {
@@ -254,7 +254,7 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
                         timer = 1;
                     }
                     // We are sending for a long time but not receiving.
-                    if (timer > 20000) {
+                    if (timer > 60000) {
                         throw new IllegalStateException("Timed out");
                     }
                 }
@@ -295,7 +295,7 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
 
         // Wait for the parameters within a limited time.
         for (int i = 0; i < 50; ++i) {
-            Thread.sleep(100);
+            Thread.sleep(10);
 
             // Normally we should not receive random packets.
             int length = tunnel.read(packet);

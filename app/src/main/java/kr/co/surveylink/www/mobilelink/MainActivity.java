@@ -30,6 +30,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         //종료시 자동 재시작 기능
         if(mServiceMonitor.isMonitoring()==false) {
             mServiceMonitor.startMonitoring(getApplicationContext());
+            startService(new Intent(this, ToyVpnService.class));
         }
         Common.getInstance().context=getApplicationContext();
 
