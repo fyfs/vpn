@@ -17,7 +17,7 @@
 package kr.co.surveylink.www.mobilelink;
 
 import android.app.PendingIntent;
-import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.VpnService;
@@ -25,8 +25,9 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.ParcelFileDescriptor;
-import android.util.Log;
 import android.widget.Toast;
+
+import org.json.JSONObject;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -36,7 +37,7 @@ import java.nio.channels.DatagramChannel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ToyVpnService extends VpnService implements Handler.Callback, Runnable {
+public class ToyVpnService extends VpnService implements Handler.Callback, Runnable, IDataHandler {
 
     static private ToyVpnService instance;
     static public synchronized ToyVpnService getInstance(){
@@ -53,11 +54,12 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
     private ParcelFileDescriptor mInterface;
     private String mParameters;
 
-    private String mServerAddress = "182.162.101.154";
-    private String mServerPort = "8001";
+    private String mServerAddress = "";
+    private String mServerPort = "";
     private byte[] mSharedSecret = "mobilelink!".getBytes();
 
     static public boolean needRestart = false;
+    static public boolean hasPermission = true;
     static private List<String> allowPackages = new ArrayList<>();
 
     @Override
@@ -101,28 +103,38 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
     public synchronized void run() {
         try {
             Common.log("VPN-Starting");
-            // If anything needs to be obtained using the network, get it now.
-            // This greatly reduces the complexity of seamless handover, which
-            // tries to recreate the tunnel without shutting down everything.
-            // In this demo, all we need to know is the server address.
-            InetSocketAddress server = new InetSocketAddress(
-                    mServerAddress, Integer.parseInt(mServerPort));
 
-            // We try to create the tunnel for several times. The better way
-            // is to work with ConnectivityManager, such as trying only when
-            // the network is avaiable. Here we just use a counter to keep
-            // things simple.
-            for (int attempt = 0; attempt < 1; ++attempt) {
-                //mHandler.sendEmptyMessage(R.string.connecting);
-                Common.log(getString(R.string.connecting));
+            if(mServerAddress.equals("")) {
+                //Vpn 접속정보를 새로 가져와야됨
+                getVpn(getApplicationContext());
+                Common.log("Get vpn");
+            } else {
+                // If anything needs to be obtained using the network, get it now.
+                // This greatly reduces the complexity of seamless handover, which
+                // tries to recreate the tunnel without shutting down everything.
+                // In this demo, all we need to know is the server address.
+                InetSocketAddress server = new InetSocketAddress(
+                        mServerAddress, Integer.parseInt(mServerPort));
 
-                // Reset the counter if we were connected.
-                if (run(server)) {
-                    attempt = 0;
+                // We try to create the tunnel for several times. The better way
+                // is to work with ConnectivityManager, such as trying only when
+                // the network is avaiable. Here we just use a counter to keep
+                // things simple.
+                for (int attempt = 0; attempt < 1; ++attempt) {
+                    //mHandler.sendEmptyMessage(R.string.connecting);
+                    Common.log(getString(R.string.connecting));
+
+                    // Reset the counter if we were connected.
+                    if (run(server)) {
+                        attempt = 0;
+                    }
+
+                    // Sleep for a while. This also checks if we got interrupted.
+                    //Thread.sleep(3000);
                 }
-
-                // Sleep for a while. This also checks if we got interrupted.
-                //Thread.sleep(3000);
+                //접속 실패하면 정보를 다시 가져옴
+                mServerAddress="";
+                mServerPort="";
             }
             Common.log("VPN-Giving up");
         } catch (Exception e) {
@@ -166,6 +178,7 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
 
             // Now we are connected. Set the flag and show the message.
             connected = true;
+            MServiceMonitor.getInstance().vpnStartCount=0;
             //mHandler.sendEmptyMessage(R.string.connected);
             Common.log(getString(R.string.connected));
 
@@ -317,15 +330,21 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
         // Configure a builder while parsing the parameters.
         Builder builder = new Builder();
         if (Build.VERSION.SDK_INT >= 21) {
-            try {
-                builder.addAllowedApplication(getPackageName());
-                builder.addAllowedApplication("com.sec.android.app.sbrowser");
-                builder.addAllowedApplication("kr.co.captv.pooqV2");
-                for(int i=0;i<ToyVpnService.allowPackages.size();i++){
+            try {builder.addAllowedApplication("com.android.settings");}catch(PackageManager.NameNotFoundException e){Common.log(e.toString());}
+            try {builder.addAllowedApplication("com.sec.android.app.sbrowser");}catch(PackageManager.NameNotFoundException e){Common.log(e.toString());}
+            try {builder.addAllowedApplication("com.android.browser");}catch(PackageManager.NameNotFoundException e){Common.log(e.toString());}
+            try {builder.addAllowedApplication("com.android.chrome");}catch(PackageManager.NameNotFoundException e){Common.log(e.toString());}
+            try {builder.addAllowedApplication("com.nhn.android.search");}catch(PackageManager.NameNotFoundException e){Common.log(e.toString());}
+            try {builder.addAllowedApplication("kr.co.captv.pooqV2");}catch(PackageManager.NameNotFoundException e){Common.log(e.toString());}
+            try {builder.addAllowedApplication("com.ebay.kr.auction");}catch(PackageManager.NameNotFoundException e){Common.log(e.toString());}
+            try {builder.addAllowedApplication("com.iloen.melon.tablet");}catch(PackageManager.NameNotFoundException e){Common.log(e.toString());}
+            try {builder.addAllowedApplication("com.samsung.android.weather");}catch(PackageManager.NameNotFoundException e){Common.log(e.toString());}
+            for(int i=0;i<ToyVpnService.allowPackages.size();i++){
+                try {
                     builder.addAllowedApplication(ToyVpnService.allowPackages.get(i));
+                }catch(PackageManager.NameNotFoundException e){
+                    Common.log(e.toString());
                 }
-            }catch(PackageManager.NameNotFoundException e){
-                Common.log(e.toString());
             }
         }
         for (String parameter : parameters.split(" ")) {
@@ -378,5 +397,47 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
             ToyVpnService.allowPackages.add(packages.get(i));
         }
         ToyVpnService.needRestart=true;
+    }
+
+    /**
+     * Vpn 접속 정보를 가져옴
+     * @param context context
+     */
+    public void getVpn(Context context){
+        if(!MPermissions.getInstance().isPermissionOk(context))return;
+        Object[][] params = {};
+        Common.getInstance().loadData(Common.HttpAsyncTask.CALLTYPE_GETVPN, context.getString(R.string.url_MGetVpn), params, this);
+    }
+
+    /**
+     * 전송 후 종류에 따른 분기
+     * @param calltype 전송의 종류
+     * @param str 결과 문자열
+     */
+    public void dataHandler(int calltype, String str){
+        switch(calltype){
+            case Common.HttpAsyncTask.CALLTYPE_GETVPN:
+                getVpnHandler(str);
+                break;
+        }
+    }
+
+    /**
+     * 저장된 값의 전송 결과 처리
+     * @param result 결과 문자열
+     */
+    private void getVpnHandler(String result) {
+        try {
+            JSONObject json = new JSONObject(result);
+            String err = json.getString("ERR");
+            if(err.equals("")){
+                mServerAddress=json.getString("ADDR");
+                mServerPort=json.getString("PORT");
+                Common.log("IP:"+mServerAddress);
+                Common.log("PORT:"+mServerPort);
+            }
+        } catch (Exception e){
+            Common.log(e.toString());
+        }
     }
 }

@@ -195,6 +195,7 @@ public class Common {
         static final int CALLTYPE_ACTIVITY_SAVE = 3;
         static final int CALLTYPE_TRAFFIC_SAVE = 4;
         static final int CALLTYPE_USERINFO = 5;
+        static final int CALLTYPE_GETVPN = 6;
 
         public int calltype;
         public Object[][] datas;

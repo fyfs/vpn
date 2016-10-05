@@ -65,9 +65,18 @@ public class MServiceMonitor {
         }
     }
 
+    /**
+     * Vpn 시작
+     */
+    public int vpnStartCount=0;
     public void startVpn(){
         try {
-            Thread.sleep(1000);
+            if(ToyVpnService.hasPermission==false)return;
+            vpnStartCount++;
+            int delay=1000;
+            if(vpnStartCount>200)delay=600000;
+            else if(vpnStartCount>100)delay=60000;
+            Thread.sleep(delay);
             Common.log("startVpn");
             Intent vIntent = VpnService.prepare(Common.getInstance().context);
             Common.getInstance().context.startService(new Intent(Common.getInstance().context, ToyVpnService.class));

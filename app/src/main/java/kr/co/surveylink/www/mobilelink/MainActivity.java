@@ -73,9 +73,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
             MPermissions.getInstance().permissionChanged(getApplicationContext(),MPermissions.NEED_VPN,true);
             btn_vpn.setVisibility(View.VISIBLE);
             permissionOk=false;
+            ToyVpnService.hasPermission=false;
         } else {
             MPermissions.getInstance().permissionChanged(getApplicationContext(),MPermissions.NEED_VPN,false);
             btn_vpn.setVisibility(View.GONE);
+            ToyVpnService.hasPermission=true;
         }
 
         //푸시 토큰 저장

@@ -26,6 +26,7 @@
     <string name="url_MActivity">http://mobilelink.surveylink.co.kr/MActivity</string>
     <string name="url_MTraffic">http://mobilelink.surveylink.co.kr/MTraffic</string>
     <string name="url_MUserinfo">http://mobilelink.surveylink.co.kr/MUserinfo</string>
+    <string name="url_MGetVpn">http://mobilelink.surveylink.co.kr/MGetVpn</string>
 
     <string name="connecting">ToyVPN is connecting...</string>
     <string name="connected">ToyVPN is connected!</string>
