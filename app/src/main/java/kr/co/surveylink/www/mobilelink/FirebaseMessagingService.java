@@ -16,6 +16,8 @@ import android.support.v4.app.NotificationCompat;
 
 import com.google.firebase.messaging.RemoteMessage;
 
+import org.json.JSONObject;
+
 import java.io.BufferedInputStream;
 import java.net.URL;
 import java.net.URLConnection;
@@ -27,21 +29,55 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
     // [START receive_message]
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        sendPushNotification(remoteMessage.getData().get("message"));
+        JSONObject json;
+        try {
+            json = new JSONObject(remoteMessage.getData().get("message"));
+            String cmd=json.getString("cmd");
+            if(cmd==null)return;
+            switch(cmd){
+                case "push":
+                    sendPushNotification(json);
+                    break;
+                case "vpnreset":
+                    ToyVpnService.needRestart=true;
+                    break;
+                case "savenow":
+                    //당장 저장
+                    String target = json.getString("target");
+                    switch(target){
+                        case "MActivity":
+                            MActivity.getInstance().save(getApplicationContext());
+                            break;
+                        case "MAddRemove":
+                            MAddRemove.getInstance().save(getApplicationContext());
+                            break;
+                        case "MInstalledApp":
+                            MInstalledApp.getInstance().checkInstalledApp(getApplicationContext());
+                            MInstalledApp.getInstance().save(getApplicationContext());
+                            break;
+                    }
+                    break;
+            }
+        } catch(Exception e){
+            Common.log(e.toString());
+        }
     }
 
-    private void sendPushNotification(String message) {
+    /**
+     * 푸시 화면에 표시
+     * @param json json data(title,content가 있어야 함)
+     */
+    private void sendPushNotification(JSONObject json) {
         try {
             Intent intent = new Intent(this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                     PendingIntent.FLAG_ONE_SHOT);
-
             Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                     .setSmallIcon(R.drawable.common_plus_signin_btn_text_light).setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
-                    .setContentTitle("Push Title ")
-                    .setContentText(message)
+                    .setContentTitle(Common.getInstance().isNull(json.getString("title")))
+                    .setContentText(Common.getInstance().isNull(json.getString("content")))
                     .setAutoCancel(true)
                     .setSound(defaultSoundUri).setLights(000000255, 500, 2000)
                     .setContentIntent(pendingIntent);

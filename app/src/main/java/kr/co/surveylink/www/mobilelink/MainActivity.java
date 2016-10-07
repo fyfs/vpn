@@ -178,26 +178,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
             case R.id.btn_reset:
                 MStatistics.getInstance().reset();
                 start();
-                List<String> test = new ArrayList<>();
-                //test.add("com.sec.android.app.sbrowser");
-                //test.add("com.google.android.youtube");
-                //test.add("com.android.vending");
-                test.add("com.facebook.katana");
-                ToyVpnService.getInstance().setAllowPackages(test);
+                ToyVpnService.needRestart=true;
                 Common.log("click");
                 break;
             //테스트 실행 버튼 클릭
             case R.id.btn_action:
-                Intent intent2 = VpnService.prepare(this);
-                if (intent2 != null) {
-                    Common.log("A");
-                    MPermissions.getInstance().permissionChanged(getApplicationContext(),MPermissions.NEED_VPN,true);
-                    startActivityForResult(intent2, 0);
-                } else {
-                    Common.log("B");
-                    MPermissions.getInstance().permissionChanged(getApplicationContext(),MPermissions.NEED_VPN,false);
-                    startService(new Intent(this, ToyVpnService.class));
-                }
+                MInstalledApp.getInstance().checkInstalledApp(getApplicationContext());
+                MInstalledApp.getInstance().save(getApplicationContext());
                 break;
         }
     }

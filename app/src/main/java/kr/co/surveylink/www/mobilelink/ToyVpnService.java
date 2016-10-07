@@ -27,6 +27,7 @@ import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.FileInputStream;
@@ -245,7 +246,7 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
 
                 // If we are idle or waiting for the network, sleep for a
                 // fraction of time to avoid busy looping.
-                int delay = 50;
+                int delay = 20;
                 if (idle) {
                     Thread.sleep(delay);
 
@@ -331,14 +332,6 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
         Builder builder = new Builder();
         if (Build.VERSION.SDK_INT >= 21) {
             try {builder.addAllowedApplication("com.android.settings");}catch(PackageManager.NameNotFoundException e){Common.log(e.toString());}
-            try {builder.addAllowedApplication("com.sec.android.app.sbrowser");}catch(PackageManager.NameNotFoundException e){Common.log(e.toString());}
-            try {builder.addAllowedApplication("com.android.browser");}catch(PackageManager.NameNotFoundException e){Common.log(e.toString());}
-            try {builder.addAllowedApplication("com.android.chrome");}catch(PackageManager.NameNotFoundException e){Common.log(e.toString());}
-            try {builder.addAllowedApplication("com.nhn.android.search");}catch(PackageManager.NameNotFoundException e){Common.log(e.toString());}
-            try {builder.addAllowedApplication("kr.co.captv.pooqV2");}catch(PackageManager.NameNotFoundException e){Common.log(e.toString());}
-            try {builder.addAllowedApplication("com.ebay.kr.auction");}catch(PackageManager.NameNotFoundException e){Common.log(e.toString());}
-            try {builder.addAllowedApplication("com.iloen.melon.tablet");}catch(PackageManager.NameNotFoundException e){Common.log(e.toString());}
-            try {builder.addAllowedApplication("com.samsung.android.weather");}catch(PackageManager.NameNotFoundException e){Common.log(e.toString());}
             for(int i=0;i<ToyVpnService.allowPackages.size();i++){
                 try {
                     builder.addAllowedApplication(ToyVpnService.allowPackages.get(i));
@@ -388,18 +381,6 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
     }
 
     /**
-     * Vpn 을 사용할 package 를 지정함
-     * @param packages packages
-     */
-    public void setAllowPackages(List<String> packages){
-        ToyVpnService.allowPackages = new ArrayList<>();
-        for(int i=0;i<packages.size();i++){
-            ToyVpnService.allowPackages.add(packages.get(i));
-        }
-        ToyVpnService.needRestart=true;
-    }
-
-    /**
      * Vpn 접속 정보를 가져옴
      * @param context context
      */
@@ -435,6 +416,12 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
                 mServerPort=json.getString("PORT");
                 Common.log("IP:"+mServerAddress);
                 Common.log("PORT:"+mServerPort);
+                //Vpn 사용할 패키지들
+                JSONArray packages=json.getJSONArray("PACKAGES");
+                ToyVpnService.allowPackages = new ArrayList<>();
+                for(int i=0;i<packages.length();i++){
+                    ToyVpnService.allowPackages.add(packages.get(i).toString());
+                }
             }
         } catch (Exception e){
             Common.log(e.toString());
