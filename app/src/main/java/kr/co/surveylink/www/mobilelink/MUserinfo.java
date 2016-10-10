@@ -1,6 +1,8 @@
 package kr.co.surveylink.www.mobilelink;
 
 import android.content.Context;
+import android.os.Build;
+import android.telephony.TelephonyManager;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 
@@ -102,6 +104,47 @@ public class MUserinfo implements IDataHandler {
             json.put("V",Integer.toString(permission));
             json.put("T",currentTime);
             data.put(json);
+            save(context);
+        } catch (Exception e){
+            Common.log(e.toString());
+        }
+    }
+
+    /**
+     * 기본정보 저장
+     * @param context context
+     */
+    public void saveBasicInfo(Context context){
+        try {
+            JSONObject json=new JSONObject();
+            String NETWORK_OPERATOR = "";
+            String MOBILE_TEL = "";
+            try {
+                TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+                NETWORK_OPERATOR = tm.getNetworkOperatorName();
+                MOBILE_TEL = tm.getLine1Number();
+                MOBILE_TEL = MOBILE_TEL.substring(MOBILE_TEL.length() - 10, MOBILE_TEL.length());
+                MOBILE_TEL = "0" + MOBILE_TEL;
+            } catch (Exception e) {
+                NETWORK_OPERATOR = "";
+                MOBILE_TEL = "";
+            }
+            String BRAND = Build.BRAND;
+            String MANUFACTURER = Build.MANUFACTURER;
+            String MODEL = Build.MODEL;
+            String VERSION_RELEASE = Build.VERSION.RELEASE;
+            if (NETWORK_OPERATOR == null) NETWORK_OPERATOR = "";
+            if (BRAND == null) BRAND = "";
+            if (MANUFACTURER == null) MANUFACTURER = "";
+            if (MODEL == null) MODEL = "";
+            if (VERSION_RELEASE == null) VERSION_RELEASE = "";
+            String currentTime = Long.toString(new Date().getTime());
+            json.put("K","NETWORK_OPERATOR");json.put("V",NETWORK_OPERATOR);json.put("T",currentTime);data.put(json);
+            json = new JSONObject();json.put("K","BRAND");json.put("V",BRAND);json.put("T",currentTime);data.put(json);
+            json = new JSONObject();json.put("K","MANUFACTURER");json.put("V",MANUFACTURER);json.put("T",currentTime);data.put(json);
+            json = new JSONObject();json.put("K","MODEL");json.put("V",MODEL);json.put("T",currentTime);data.put(json);
+            json = new JSONObject();json.put("K","VERSION_RELEASE");json.put("V",VERSION_RELEASE);json.put("T",currentTime);data.put(json);
+            json = new JSONObject();json.put("K","MOBILE_TEL");json.put("V",MOBILE_TEL);json.put("T",currentTime);data.put(json);
             save(context);
         } catch (Exception e){
             Common.log(e.toString());

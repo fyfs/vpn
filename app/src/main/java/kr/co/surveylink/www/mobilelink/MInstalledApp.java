@@ -162,6 +162,7 @@ public class MInstalledApp implements IDataHandler{
         if(!MPermissions.getInstance().isPermissionOk(context))return;
         String currentTime = Long.toString(new Date().getTime());
         Object[][] params = {{"list",data.toString()},{"currentTime",currentTime}};
+        Common.getInstance().lastsave_installedApp=new Date().getTime();
         Common.getInstance().loadData(Common.HttpAsyncTask.CALLTYPE_INSTALLEDAPP_SAVE, context.getString(R.string.url_MInstalledApp), params, this);
     }
 

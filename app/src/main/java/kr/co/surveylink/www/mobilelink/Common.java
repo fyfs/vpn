@@ -53,14 +53,26 @@ public class Common {
     int interval_startService = 60000;
     /** 권한 허용되지 않았을 때 noti를 보여주는 주기 */
     int interval_noti_permission = 1000*60*60;
-    /** 서비스 실행 주기 */
+    /** 서비스 실행 주기. 이것은 다른 모든 주기보다 작아야 한다 */
     int interval_service = 1000;
     /** Activity 확인 주기 */
     int interval_retriveApp = 3000;
+    /** mobile 데이터 상태에서 최대 MActivity 저장 대기시간 */
+    long interval_save_activity = 180000;//1000*60*60*24;
+    /** mobile 데이터 상태에서 최대 MAddRemove 저장 대기시간 */
+    long interval_save_addRemove = 180000;//1000*60*60*24;
+    /** mobile 데이터 상태에서 최대 MInstalledApp 저장 대기시간 */
+    long interval_save_installedApp = 180000;//1000*60*60*24;
     /** 최종 Activity 확인시각 */
     long lasttime_retriveApp = 0;
     /** 최종 권한 허용 요청 noti 시각 */
     long lasttime_noti_permission = 0;
+    /** 최종 MActivity 저장 시각 */
+    long lastsave_activity = 0;
+    /** 최종 MAddRemove 저장 시각 */
+    long lastsave_addRemove = 0;
+    /** 최종 MInstalledApp 저장 시각 */
+    long lastsave_installedApp = 0;
 
     /**
      * null 을 공백으로 반환

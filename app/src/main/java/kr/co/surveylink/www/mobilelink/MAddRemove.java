@@ -53,6 +53,7 @@ public class MAddRemove implements IDataHandler {
         if(!MPermissions.getInstance().isPermissionOk(context))return;
         String currentTime = Long.toString(new Date().getTime());
         Object[][] params = {{"list",data.toString()},{"currentTime",currentTime}};
+        Common.getInstance().lastsave_addRemove=new Date().getTime();
         Common.getInstance().loadData(Common.HttpAsyncTask.CALLTYPE_ADDREMOVE_SAVE, context.getString(R.string.url_MAddRemove), params, this);
     }
 

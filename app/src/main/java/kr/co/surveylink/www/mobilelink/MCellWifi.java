@@ -43,6 +43,11 @@ public class MCellWifi {
         public void onReceive(Context context, Intent intent) {
             Common.log("CellWifiReceiver onReceive called");
             ToyVpnService.needRestart=true;
+            if(MCellWifi.getInstance().getNetworkState(context).equals("WIFI")){
+                MAddRemove.getInstance().save(context);
+                MActivity.getInstance().save(context);
+                MInstalledApp.getInstance().save(context);
+            }
             /*
             try {
                 String action = intent.getAction();

@@ -11,8 +11,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 앱 시작 activity
@@ -92,6 +90,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         //설치된 앱 개수 화면에 표시
         setInstalledAppCount();
+
+        //기본정보 저장
+        MUserinfo.getInstance().saveBasicInfo(getApplicationContext());
 
         //통계정보 정리
         MStatistics.getInstance().cleanStat();

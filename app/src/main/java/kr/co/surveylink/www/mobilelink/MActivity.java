@@ -125,7 +125,6 @@ public class MActivity implements IDataHandler {
         }
         if(!lastPackageName.equals(packageName)){
             change(context);
-            save(context);
             lastPackageName=packageName;
             lastActivity=activity;
             lastPackages=curPackages;
@@ -290,6 +289,7 @@ public class MActivity implements IDataHandler {
         if(!MPermissions.getInstance().isPermissionOk(context))return;
         String currentTime = Long.toString(new Date().getTime());
         Object[][] params = {{"list",data.toString()},{"currentTime",currentTime}};
+        Common.getInstance().lastsave_activity=new Date().getTime();
         Common.getInstance().loadData(Common.HttpAsyncTask.CALLTYPE_ACTIVITY_SAVE, context.getString(R.string.url_MActivity), params, this);
     }
 

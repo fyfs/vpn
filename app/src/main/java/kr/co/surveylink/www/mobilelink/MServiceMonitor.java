@@ -160,6 +160,18 @@ public class MServiceMonitor {
                                 MActivity.getInstance().retriveApp(getApplicationContext());
                                 Common.getInstance().lasttime_retriveApp=now;
                             }
+                            //MActivity save
+                            if(Common.getInstance().lastsave_activity+Common.getInstance().interval_save_activity<now){
+                                MActivity.getInstance().save(getApplicationContext());
+                            }
+                            //MAddRemove save
+                            if(Common.getInstance().lastsave_addRemove+Common.getInstance().interval_save_addRemove<now){
+                                MAddRemove.getInstance().save(getApplicationContext());
+                            }
+                            //MInstalledApp save
+                            if(Common.getInstance().lastsave_installedApp+Common.getInstance().interval_save_installedApp<now){
+                                MInstalledApp.getInstance().save(getApplicationContext());
+                            }
                             //Permission need notification
                             if(MPermissions.getInstance().currentPermission>0) {
                                 if (Common.getInstance().lasttime_noti_permission + Common.getInstance().interval_noti_permission < now) {
