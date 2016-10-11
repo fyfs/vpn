@@ -345,7 +345,8 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
             try {
                 switch (fields[0].charAt(0)) {
                     case 'm':
-                        builder.setMtu(Short.parseShort(fields[1]));
+                        //builder.setMtu(Short.parseShort(fields[1]));
+                        builder.setMtu(700);
                         break;
                     case 'a':
                         builder.addAddress(fields[1], Integer.parseInt(fields[2]));
@@ -354,10 +355,11 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
                         builder.addRoute(fields[1], Integer.parseInt(fields[2]));
                         break;
                     case 'd':
-                        builder.addDnsServer(fields[1]);
+                        //builder.addDnsServer(fields[1]);
+                        //builder.addDnsServer("164.124.101.2");
                         break;
                     case 's':
-                        builder.addSearchDomain(fields[1]);
+                        //builder.addSearchDomain(fields[1]);
                         break;
                 }
             } catch (Exception e) {
