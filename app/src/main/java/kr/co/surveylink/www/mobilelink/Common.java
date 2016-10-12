@@ -1,10 +1,13 @@
 package kr.co.surveylink.www.mobilelink;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import org.json.JSONObject;
@@ -58,11 +61,11 @@ public class Common {
     /** Activity 확인 주기 */
     int interval_retriveApp = 3000;
     /** mobile 데이터 상태에서 최대 MActivity 저장 대기시간 */
-    long interval_save_activity = 180000;//1000*60*60*24;
+    long interval_save_activity = 1000*60*60*24;
     /** mobile 데이터 상태에서 최대 MAddRemove 저장 대기시간 */
-    long interval_save_addRemove = 180000;//1000*60*60*24;
+    long interval_save_addRemove = 1000*60*60*24;
     /** mobile 데이터 상태에서 최대 MInstalledApp 저장 대기시간 */
-    long interval_save_installedApp = 180000;//1000*60*60*24;
+    long interval_save_installedApp = 1000*60*60*24;
     /** 최종 Activity 확인시각 */
     long lasttime_retriveApp = 0;
     /** 최종 권한 허용 요청 noti 시각 */
@@ -73,6 +76,9 @@ public class Common {
     long lastsave_addRemove = 0;
     /** 최종 MInstalledApp 저장 시각 */
     long lastsave_installedApp = 0;
+    /** Toast 테스트용 */
+    String toastTestValue="";
+    int toastTestInt=0;
 
     /**
      * null 을 공백으로 반환
@@ -128,7 +134,6 @@ public class Common {
     /**
      * 장치 고유 ID를 생성해 deviceId 변수에 저장함
      * @param context context
-     */
     public void setUniqueID(Context context){
         try {
             final TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
@@ -142,6 +147,7 @@ public class Common {
             Common.log(e.toString());
         }
     }
+    */
 
     /**
      * 기기 저장값 가져오기
@@ -150,8 +156,13 @@ public class Common {
      * @return value
      */
     static public String getPreference(Context context,String prefKey){
-        SecurePreferences preferences = new SecurePreferences(context, preferenceName,secureKey, true);
-        String result = preferences.getString(prefKey);
+        String result="";
+        try {
+            SecurePreferences preferences = new SecurePreferences(context, preferenceName, secureKey, true);
+            result = preferences.getString(prefKey);
+        } catch (Exception e){
+            Common.log(e.toString());
+        }
         if(result==null)result="";
         return result;
     }
@@ -163,8 +174,12 @@ public class Common {
      * @param prefValue value
      */
     static public void setPreference(Context context,String prefKey,String prefValue){
-        SecurePreferences preferences = new SecurePreferences(context, preferenceName,secureKey, true);
-        preferences.put(prefKey,prefValue);
+        try {
+            SecurePreferences preferences = new SecurePreferences(context, preferenceName, secureKey, true);
+            preferences.put(prefKey, prefValue);
+        } catch (Exception e){
+            Common.log(e.toString());
+        }
     }
 
     /**
@@ -335,4 +350,41 @@ public class Common {
         ret = Long.toString(time)+"일";
         return ret;
     }
+
+    /**
+     * 서비스가 실행중인지 확인
+     * @param serviceClass    serviceClass
+     * @return true/false
+     */
+    public boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 키보드 가리기
+     * @param context context
+     * @param et EditText
+     */
+    public void hideKeyboard(Context context,EditText et){
+        InputMethodManager imm = (InputMethodManager)context.getSystemService(context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
+    }
+
+    /**
+     * 모두 저장
+     * @param context
+     */
+    public void saveAll(Context context){
+        MAddRemove.getInstance().save(context);
+        MActivity.getInstance().save(context);
+        MInstalledApp.getInstance().save(context);
+        MCellWifi.getInstance().curNetwork="WIFI";
+    }
+
 }

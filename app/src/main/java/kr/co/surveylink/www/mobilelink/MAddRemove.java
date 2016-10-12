@@ -51,6 +51,7 @@ public class MAddRemove implements IDataHandler {
      */
     public void save(Context context){
         if(!MPermissions.getInstance().isPermissionOk(context))return;
+        if(Common.getInstance().getPreference(context,"deviceId").equals(""))return;
         String currentTime = Long.toString(new Date().getTime());
         Object[][] params = {{"list",data.toString()},{"currentTime",currentTime}};
         Common.getInstance().lastsave_addRemove=new Date().getTime();

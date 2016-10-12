@@ -127,19 +127,43 @@
             android:onClick="onClick"
             android:visibility="gone"/>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:id="@+id/et_uid"
+                android:maxLines="1"
+                android:inputType="textEmailAddress"/>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:id="@+id/btn_login"
+                android:text="@string/btn_login"
+                android:onClick="onClick"/>
+
+        </LinearLayout>
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/btn_reset"
             android:text="@string/btn_reset"
-            android:onClick="onClick"/>
+            android:onClick="onClick"
+            android:visibility="gone"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/btn_action"
             android:text="@string/btn_test"
-            android:onClick="onClick"/>
+            android:onClick="onClick"
+            android:visibility="gone"/>
 
 
     </LinearLayout>

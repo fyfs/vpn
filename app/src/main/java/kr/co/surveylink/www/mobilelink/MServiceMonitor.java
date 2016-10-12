@@ -13,9 +13,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.net.VpnService;
+import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.Message;
 import android.os.SystemClock;
+import android.widget.Toast;
 
 import java.util.Date;
 import java.util.List;
@@ -26,6 +30,7 @@ public class MServiceMonitor {
     private AlarmManager am;
     private Intent intent;
     private PendingIntent sender;
+    private Context thisContext;
 
     private MServiceMonitor() {}
     public static synchronized MServiceMonitor getInstance() {
@@ -39,6 +44,7 @@ public class MServiceMonitor {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (isRunningService(context, MService.class) == false) {
+                MServiceMonitor.getInstance().thisContext=context;
                 context.startService(new Intent(context, MService.class));
             }
         }
@@ -77,7 +83,7 @@ public class MServiceMonitor {
             if(vpnStartCount>200)delay=600000;
             else if(vpnStartCount>100)delay=60000;
             Thread.sleep(delay);
-            Common.log("startVpn");
+            //Common.log("startVpn");
             Intent vIntent = VpnService.prepare(Common.getInstance().context);
             Common.getInstance().context.startService(new Intent(Common.getInstance().context, ToyVpnService.class));
         } catch(Exception e){
@@ -143,6 +149,8 @@ public class MServiceMonitor {
         @Override
         public void onDestroy() {
             serviceRunning = false;
+            Common.log("DESTROY SAVE CALL!");
+            Common.getInstance().saveAll(getApplicationContext());
             super.onDestroy();
         }
 
@@ -155,6 +163,7 @@ public class MServiceMonitor {
                         while (serviceRunning) {
                             Long now = (new Date()).getTime();
                             Common.getInstance().context=getApplicationContext();
+                            Common.getInstance().toastTestInt++;
                             //MActivity retriveApp
                             if(Common.getInstance().lasttime_retriveApp+Common.getInstance().interval_retriveApp<now){
                                 MActivity.getInstance().retriveApp(getApplicationContext());

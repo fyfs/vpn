@@ -34,8 +34,8 @@ public class MPermissions{
         return instance;
     }
 
-    static public final int NEED_ACCESS_FINE_LOCATION = 1;
-    static public final int NEED_ACCESS_COARSE_LOCATION = 2;
+    static public final int NEED_ACCESS_FINE_LOCATION = 0;//원래 1인데 필수권한 아니어서 빠짐
+    static public final int NEED_ACCESS_COARSE_LOCATION = 0;//원래 2인데 필수권한 아니어서 빠짐
     static public final int NEED_ACCESS_NETWORK_STATE = 4;
     static public final int NEED_READ_PHONE_STATE = 8;
     static public final int NEED_USAGE_STATS_SERVICE = 16;
@@ -70,11 +70,11 @@ public class MPermissions{
             need=true;
         } else {
             MPermissions.getInstance().permissionChanged(context,MPermissions.NEED_READ_PHONE_STATE,false);
-            //deviceId 생성
-            Common.getInstance().setUniqueID(context);
             //push token 저장
             MUserinfo.getInstance().savePushToken(context);
         }
+        /*
+        //위치 권한은 필수가 아닌 걸로
         if(ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)== PackageManager.PERMISSION_DENIED){
             MPermissions.getInstance().permissionChanged(context,MPermissions.NEED_ACCESS_FINE_LOCATION,true);
             need=true;
@@ -87,6 +87,7 @@ public class MPermissions{
         } else {
             MPermissions.getInstance().permissionChanged(context,MPermissions.NEED_ACCESS_COARSE_LOCATION,false);
         }
+        */
         if(ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_NETWORK_STATE)== PackageManager.PERMISSION_DENIED){
             MPermissions.getInstance().permissionChanged(context,MPermissions.NEED_ACCESS_NETWORK_STATE,true);
             need=true;
@@ -130,7 +131,7 @@ public class MPermissions{
     }
 
     /** 현재 권한 */
-    public int currentPermission = 1;
+    public int currentPermission = 0;
     /**
      * 권한이 필요함
      * @param context context
@@ -149,6 +150,7 @@ public class MPermissions{
                 mustChange = true;
             currentPermission = (currentPermission | permission)-permission;
         }
+        Common.setPreference(context,"currentPermission",Integer.toString(currentPermission));
         if (!mustChange) return;
         MUserinfo.getInstance().permissionSave(context,currentPermission);
     }

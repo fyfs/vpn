@@ -4,6 +4,7 @@
     <string name="permission">정상적인 앱 실행을 위해 [권한] 메뉴에서 해당 권한을 허용해주세요</string>
     <string name="usageAccess">정상적인 앱 실행을 위해 [설정] > [보안] > [사용정보 접근 허용]에서 Mobilelink 를 허용해주세요</string>
     <string name="noti_needPermission">정상적인 앱 실행을 위해 권한 설정을 해주세요</string>
+    <string name="loginSuccess">로그인 되었습니다</string>
 
     <string name="lbl_currentState">현재 상태 :</string>
     <string name="lbl_currentState_abnormal">비정상</string>
@@ -20,6 +21,7 @@
     <string name="btn_vpn">VPN 설정</string>
     <string name="btn_reset">통계자료 초기화</string>
     <string name="btn_test">테스트 버튼</string>
+    <string name="btn_login">로그인</string>
 
     <string name="url_MAddRemove">http://mobilelink.surveylink.co.kr/MAddRemove</string>
     <string name="url_MInstalledApp">http://mobilelink.surveylink.co.kr/MInstalledApp</string>

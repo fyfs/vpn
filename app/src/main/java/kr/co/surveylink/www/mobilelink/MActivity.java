@@ -123,6 +123,9 @@ public class MActivity implements IDataHandler {
                 Common.log(e.toString());
             }
         }
+
+        Common.getInstance().toastTestValue=packageName;
+
         if(!lastPackageName.equals(packageName)){
             change(context);
             lastPackageName=packageName;
@@ -287,6 +290,7 @@ public class MActivity implements IDataHandler {
      */
     public void save(Context context){
         if(!MPermissions.getInstance().isPermissionOk(context))return;
+        if(Common.getInstance().getPreference(context,"deviceId").equals(""))return;
         String currentTime = Long.toString(new Date().getTime());
         Object[][] params = {{"list",data.toString()},{"currentTime",currentTime}};
         Common.getInstance().lastsave_activity=new Date().getTime();
@@ -311,6 +315,7 @@ public class MActivity implements IDataHandler {
      * @param result 결과 문자열
      */
     private void saveHandler(String result) {
+        Common.log("MActivity saveHandler");
         try {
             JSONObject json = new JSONObject(result);
             String err = json.getString("ERR");

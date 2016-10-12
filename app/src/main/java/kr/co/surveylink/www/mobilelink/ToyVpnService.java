@@ -103,12 +103,12 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
     @Override
     public synchronized void run() {
         try {
-            Common.log("VPN-Starting");
+            //Common.log("VPN-Starting");
 
             if(mServerAddress.equals("")) {
                 //Vpn 접속정보를 새로 가져와야됨
                 getVpn(getApplicationContext());
-                Common.log("Get vpn");
+                //Common.log("Get vpn");
             } else {
                 // If anything needs to be obtained using the network, get it now.
                 // This greatly reduces the complexity of seamless handover, which
@@ -123,7 +123,7 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
                 // things simple.
                 for (int attempt = 0; attempt < 1; ++attempt) {
                     //mHandler.sendEmptyMessage(R.string.connecting);
-                    Common.log(getString(R.string.connecting));
+                    //Common.log(getString(R.string.connecting));
 
                     // Reset the counter if we were connected.
                     if (run(server)) {
@@ -137,9 +137,9 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
                 mServerAddress="";
                 mServerPort="";
             }
-            Common.log("VPN-Giving up");
+            //Common.log("VPN-Giving up");
         } catch (Exception e) {
-            Common.log("VPN-Got " + e.toString());
+            //Common.log("VPN-Got " + e.toString());
         } finally {
             try {
                 mInterface.close();
@@ -150,8 +150,8 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
             mParameters = null;
 
             //mHandler.sendEmptyMessage(R.string.disconnected);
-            Common.log(getString(R.string.disconnected));
-            Common.log("VPN-Exiting");
+            //Common.log(getString(R.string.disconnected));
+            //Common.log("VPN-Exiting");
             MServiceMonitor.getInstance().startVpn();
         }
     }
@@ -212,7 +212,7 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
                     try {
                         tunnel.write(packet);
                     } catch (Exception e) {
-                        Common.log("packet write fail");
+                        //Common.log("packet write fail");
                     }
                     packet.clear();
 
@@ -277,7 +277,7 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
         } catch (InterruptedException e) {
             throw e;
         } catch (Exception e) {
-            Common.log("VPN-Got " + e.toString());
+            //Common.log("VPN-Got " + e.toString());
         } finally {
             try {
                 tunnel.close();
@@ -324,19 +324,23 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
     private void configure(String parameters) throws Exception {
         // If the old interface has exactly the same parameters, use it!
         if (mInterface != null && parameters.equals(mParameters)) {
-            Common.log("VPN-Using the previous interface");
+            //Common.log("VPN-Using the previous interface");
             return;
         }
 
         // Configure a builder while parsing the parameters.
         Builder builder = new Builder();
         if (Build.VERSION.SDK_INT >= 21) {
-            try {builder.addAllowedApplication("com.android.settings");}catch(PackageManager.NameNotFoundException e){Common.log(e.toString());}
+            try {
+                builder.addAllowedApplication("com.android.settings");
+            }catch(PackageManager.NameNotFoundException e){
+                //Common.log(e.toString());
+            }
             for(int i=0;i<ToyVpnService.allowPackages.size();i++){
                 try {
                     builder.addAllowedApplication(ToyVpnService.allowPackages.get(i));
                 }catch(PackageManager.NameNotFoundException e){
-                    Common.log(e.toString());
+                    //Common.log(e.toString());
                 }
             }
         }
@@ -379,7 +383,7 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
                 .setConfigureIntent(mConfigureIntent)
                 .establish();
         mParameters = parameters;
-        Common.log("VPN-New interface: " + parameters);
+        //Common.log("VPN-New interface: " + parameters);
     }
 
     /**
@@ -388,6 +392,7 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
      */
     public void getVpn(Context context){
         if(!MPermissions.getInstance().isPermissionOk(context))return;
+        if(Common.getInstance().getPreference(context,"deviceId").equals(""))return;
         Object[][] params = {};
         Common.getInstance().loadData(Common.HttpAsyncTask.CALLTYPE_GETVPN, context.getString(R.string.url_MGetVpn), params, this);
     }
@@ -416,8 +421,8 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
             if(err.equals("")){
                 mServerAddress=json.getString("ADDR");
                 mServerPort=json.getString("PORT");
-                Common.log("IP:"+mServerAddress);
-                Common.log("PORT:"+mServerPort);
+                //Common.log("IP:"+mServerAddress);
+                //Common.log("PORT:"+mServerPort);
                 //Vpn 사용할 패키지들
                 JSONArray packages=json.getJSONArray("PACKAGES");
                 ToyVpnService.allowPackages = new ArrayList<>();
@@ -426,7 +431,7 @@ public class ToyVpnService extends VpnService implements Handler.Callback, Runna
                 }
             }
         } catch (Exception e){
-            Common.log(e.toString());
+            //Common.log(e.toString());
         }
     }
 }

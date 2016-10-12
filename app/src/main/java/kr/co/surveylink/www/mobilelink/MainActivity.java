@@ -8,7 +8,9 @@ import android.net.VpnService;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -85,6 +87,23 @@ public class MainActivity extends Activity implements View.OnClickListener {
         setCurrentStateOk(permissionOk);
         if(!permissionOk)return;
 
+        //로그인이 되어있다면 아이디 표시
+        if(!Common.getPreference(getApplicationContext(),"deviceId").equals("")){
+            EditText et_uid=(EditText)findViewById(R.id.et_uid);
+            et_uid.setText(Common.getPreference(getApplicationContext(),"deviceId"));
+        }
+
+        //테스트용 아이디라면 보이게 할 버튼들 처리
+        Button btn_reset=(Button)findViewById(R.id.btn_reset);
+        Button btn_action=(Button)findViewById(R.id.btn_action);
+        if(Common.getPreference(getApplicationContext(),"deviceId").length()>=6 && Common.getPreference(getApplicationContext(),"deviceId").substring(0,6).equals("tester")){
+            btn_reset.setVisibility(View.VISIBLE);
+            btn_action.setVisibility(View.VISIBLE);
+        } else {
+            btn_reset.setVisibility(View.GONE);
+            btn_action.setVisibility(View.GONE);
+        }
+
         //설치된 앱들 확인
         MInstalledApp.getInstance().checkInstalledApp(getApplicationContext());
 
@@ -105,6 +124,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         //장치 사용시간 표시
         setUseTime();
+
+        //현재 네트워크 상태 저장
+        MCellWifi.getInstance().curNetwork=MCellWifi.getInstance().getNetworkState(getApplicationContext());
+
+        //서비스 시작
+        if(!Common.getInstance().isMyServiceRunning(MServiceMonitor.MService.class))startService(new Intent(this, MServiceMonitor.MService.class));
+        if(!Common.getInstance().isMyServiceRunning(ToyVpnService.class))startService(new Intent(this, ToyVpnService.class));
+        if(!Common.getInstance().isMyServiceRunning(FirebaseMessagingService.class))startService(new Intent(this, FirebaseMessagingService.class));
+        if(!Common.getInstance().isMyServiceRunning(FirebaseInstanceIDService.class))startService(new Intent(this, FirebaseInstanceIDService.class));
 
     }
 
@@ -175,6 +203,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     startService(new Intent(this, ToyVpnService.class));
                 }
                 break;
+            //로그인
+            case R.id.btn_login:
+                login();
+                break;
             //통계자료 초기화
             case R.id.btn_reset:
                 MStatistics.getInstance().reset();
@@ -184,8 +216,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 break;
             //테스트 실행 버튼 클릭
             case R.id.btn_action:
-                MInstalledApp.getInstance().checkInstalledApp(getApplicationContext());
-                MInstalledApp.getInstance().save(getApplicationContext());
+                //MInstalledApp.getInstance().checkInstalledApp(getApplicationContext());
+                //MInstalledApp.getInstance().save(getApplicationContext());
+                Toast.makeText(getApplicationContext(),Integer.toString(Common.getInstance().toastTestInt)+":"+Common.getInstance().toastTestValue,Toast.LENGTH_SHORT).show();
                 break;
         }
     }
@@ -236,6 +269,18 @@ public class MainActivity extends Activity implements View.OnClickListener {
             Button btn_vpn = (Button)findViewById(R.id.btn_vpn);
             btn_vpn.setVisibility(View.GONE);
         }
+    }
+
+    /**
+     * 로그인
+     */
+    private void login() {
+        String uid="";
+        EditText et_uid=(EditText)findViewById(R.id.et_uid);
+        uid=et_uid.getText().toString();
+        Common.setPreference(getApplicationContext(),"deviceId",uid);
+        Common.getInstance().hideKeyboard(getApplicationContext(),et_uid);
+        Toast.makeText(getApplicationContext(),R.string.loginSuccess,Toast.LENGTH_SHORT).show();
     }
 
 }

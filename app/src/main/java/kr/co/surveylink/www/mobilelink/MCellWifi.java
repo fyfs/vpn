@@ -36,27 +36,34 @@ public class MCellWifi {
         //4 : WIFI_STATE_UNKNOWN
     }
     /**
-     * wifi 상태가 변경되었을 때 수신자 - 현재 사용하지 않음
+     * wifi 상태가 변경되었을 때 수신자
      */
+    public String curNetwork="";
     static public class CellWifiReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Common.log("CellWifiReceiver onReceive called");
-            ToyVpnService.needRestart=true;
-            if(MCellWifi.getInstance().getNetworkState(context).equals("WIFI")){
-                MAddRemove.getInstance().save(context);
-                MActivity.getInstance().save(context);
-                MInstalledApp.getInstance().save(context);
-            }
-            /*
+            //Common.log("CellWifiReceiver onReceive called");
+            String action="";
+            int state = -1;
             try {
-                String action = intent.getAction();
+                action = intent.getAction();
                 WifiManager wm = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
-                MCellWifi.getInstance().action(action,wm.getWifiState());
+                state=wm.getWifiState();
+                //MCellWifi.getInstance().action(action,state);
             } catch(Exception e){
                 e.printStackTrace();
             }
-            */
+            if(     (action.equals("android.net.wifi.WIFI_STATE_CHANGED")&&state==1)
+                ||  (action.equals("android.net.wifi.STATE_CHANGE")&&state==3)){
+                ToyVpnService.needRestart = true;
+                if(state==1){
+                    MCellWifi.getInstance().curNetwork="MOBILE";
+                } else if(state==3 && (!MCellWifi.getInstance().curNetwork.equals("WIFI"))) {
+                    Common.log("WIFI SAVE CALL!");
+                    Common.getInstance().saveAll(context);
+                    MCellWifi.getInstance().curNetwork="WIFI";
+                }
+            }
         }
     }
 
